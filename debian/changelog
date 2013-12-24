@@ -1,3 +1,9 @@
+ifupdown (0.7~beta2ubuntu10pexip1) pexip; urgency=low
+
+  * Prepare Pexip packaging
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 24 Dec 2013 21:10:59 +0000
+
 ifupdown (0.7~beta2ubuntu10) precise-proposed; urgency=low
 
   * Backport a fix from upstream mercurial
