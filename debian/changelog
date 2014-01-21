@@ -1,3 +1,9 @@
+ifupdown (0.7~beta2ubuntu10pexip2) pexip; urgency=low
+
+  * Create /etc/network/interfaces.d
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 21 Jan 2014 17:17:43 +0000
+
 ifupdown (0.7~beta2ubuntu10pexip1) pexip; urgency=low
 
   * Prepare Pexip packaging
