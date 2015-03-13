@@ -1,150 +1,423 @@
-ifupdown (0.7~beta2ubuntu10) precise-proposed; urgency=low
+ifupdown (0.7.53.1) unstable; urgency=medium
 
-  * Backport a fix from upstream mercurial
-    (http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/fb3055c2c4f0)
-    for a regression introduced by a93db3ecb8f0. LP: #1226067
+  * Update tests.
 
- -- Chris J Arges <chris.j.arges@canonical.com>  Mon, 16 Sep 2013 11:37:14 -0500
+ -- Andrew Shadura <andrewsh@debian.org>  Fri, 13 Mar 2015 13:18:59 +0100
 
-ifupdown (0.7~beta2ubuntu9) precise; urgency=low
+ifupdown (0.7.53) unstable; urgency=medium
 
-  * Backport a fix from upstream mercurial
-    (http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/a93db3ecb8f0)
-    for a race condition when updating the state file.  LP: #1160490
+  * Default accept_ra to 0 when gateway is set (Closes: #775660).
+  * Don't try to parse a non-existing file given by wordexp (Closes: #776578).
 
- -- Chris J Arges <chris.j.arges@canonical.com>  Tue, 20 Aug 2013 16:49:46 -0500
+ -- Andrew Shadura <andrewsh@debian.org>  Fri, 13 Mar 2015 08:55:42 +0100
 
-ifupdown (0.7~beta2ubuntu8) precise; urgency=low
+ifupdown (0.7.52) unstable; urgency=medium
 
-  * Start networking upstart job on 'or container', to let us optimize the
-    udevtrigger job.
+  * Fix segfault when /e/n/i can't be read. Fail only when the file
+    has errors, issue a warning when it can't be opened (Closes: #774212).
 
- -- Steve Langasek <steve.langasek@ubuntu.com>  Wed, 04 Apr 2012 17:27:03 -0700
+ -- Andrew Shadura <andrewsh@debian.org>  Sun, 04 Jan 2015 15:21:25 +0100
 
-ifupdown (0.7~beta2ubuntu7) precise; urgency=low
+ifupdown (0.7.51) unstable; urgency=medium
 
-  [ Wookey ]
-  * Use cross-compiler when cross-compiling (LP: #967227)
-    Also merged upstream as:
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/b21bc14d9109
+  [ Michael Biebl ]
+  * Check the hotplug interface operstate to avoid blocking the
+    boot process (Closes: #771943).
+
+ -- Andrew Shadura <andrewsh@debian.org>  Sun, 14 Dec 2014 12:34:19 +0100
+
+ifupdown (0.7.50) unstable; urgency=medium
+
+  [ Andrew Shadura ]
+  * Configure the loopback interface by default only if user hasn't
+    defined their own loopback interface (Closes: #709378).
+  * Update udhcp command-line options (Closes: #741579).
+  * Fix compiler warnings.
+  * Update the documentation regarding "source" keyword.
+
+  [ Michael Biebl ]
+  * Call "udev settle" explicitly before configuring any devices (Closes:
+    #766943).
+
+ -- Andrew Shadura <andrewsh@debian.org>  Sat, 29 Nov 2014 14:32:32 +0100
+
+ifupdown (0.7.49) unstable; urgency=medium
+
+  [ Andrew Shadura ]
+  * Proper implementation of auto on kFreeBSD (Closes: #738942).
+  * Don't fail on sysctl failing (Closes: #757937).
+  * Accept router advertisements when using DHCPv6 (Closes: #753580).
+  * Don't configure hotplug interfaces on networking start to avoid races.
 
   [ Stéphane Graber ]
-  * Cherry pick commits from upstream to fix the broadcast address (LP: #924880)
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/d31ffdb89dbb
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/b996bb5866f5
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/fbe3c242d6f8
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/bdfd32ad6287
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/d144dfdd7940
+  * Upstart job tweaks.
 
-  * Detect bogus dns-nameservers line in /etc/network/interfaces and
-    automatically comment them (LP: #932275)
+ -- Andrew Shadura <andrewsh@debian.org>  Tue, 23 Sep 2014 17:39:51 +0200
 
- -- Stéphane Graber <stgraber@ubuntu.com>  Thu, 29 Mar 2012 17:39:32 -0400
+ifupdown (0.7.48.1) unstable; urgency=low
 
-ifupdown (0.7~beta2ubuntu6) precise; urgency=low
+  * Add --ignore-errors option.
+  * Handle errors correctly during interface deconfiguration.
 
-  * Fix previous upload.
-  * Forgot to update the test suite in previous upload...
-    Update debian/testbuild-linux to drop --exit-on-error.
+ -- Andrew Shadura <andrewsh@debian.org>  Sun, 23 Mar 2014 18:50:08 +0100
 
- -- Stéphane Graber <stgraber@ubuntu.com>  Thu, 16 Feb 2012 10:50:53 -0500
+ifupdown (0.7.48) unstable; urgency=low
 
-ifupdown (0.7~beta2ubuntu5) precise; urgency=low
+  * Ignore statuses on down, don't ignore them on up.
+      When configuring an interface, it's important for all commands
+      to succeed, so if anything fails, interface isn't marked as
+      configured. When deconfiguring it, however, we should do our
+      best we can to deconfigure it, so if something fails, that's
+      not the reason to stop trying.
+      Closes: #360806, #547587, #562962, #700811.
+  * Disable tests for DAD.
+  * Fix hurd static script with IPv6 support (Closes: #737084).
+  * Support preferred lifetime setting for tunnels (Closes: #735534).
+  * Provide an alternative iproute dependency to make backporting easier.
+  * Default to accept_ra=2 for inet6/auto (Closes: #739993, LP: #1260241)
 
-  * Revert upstream commit setting --exit-on-error to the run-parts call.
-    Scripts still shouldn't exit non-zero unless they plan to stop the
-    network configuration, but considering the amount of broken scripts
-    out there, it was considered safer to ignore their return value for
-    12.04.
-    This change will be reverted in 12.10 when Debian also has the new
-    ifupdown.
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/2625e15a5fc2
+ -- Andrew Shadura <andrewsh@debian.org>  Sun, 23 Mar 2014 15:03:09 +0100
 
- -- Stéphane Graber <stgraber@ubuntu.com>  Thu, 16 Feb 2012 10:17:56 -0500
+ifupdown (0.7.47.2) unstable; urgency=low
 
-ifupdown (0.7~beta2ubuntu4) precise; urgency=low
+  * Rebuild to avoid useless dependencies on sysv-rc and file-rc.
+  * Don't pass deprecated arguments to update-rc.d.
 
-  * Add a new network-interface-container upstart job that will emit
-    a fake net-device-added for the loopback interface on LXC
-    and LXC-libvirt.
-    This is needed as we don't get a udev event for the loopback interface
-    and net-device-up won't be emitted for the loopback interface in the
-    if-up.d hook (as it's supposed to be done in network-interface).
+ -- Andrew Shadura <andrewsh@debian.org>  Mon, 06 Jan 2014 21:23:03 +0100
 
- -- Stéphane Graber <stgraber@ubuntu.com>  Sun, 12 Feb 2012 16:14:53 -0500
+ifupdown (0.7.47.1) unstable; urgency=low
 
-ifupdown (0.7~beta2ubuntu3) precise; urgency=low
+  * Depend on adduser (Closes: #730598).
 
-  * More label fixes from upstream, don't bring down the parent
-    when bringing down a label.
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/f9cef973859e
-    http://anonscm.debian.org/hg/collab-maint/ifupdown/rev/80a68bbbd45d
-  * /etc/init/network-interface-security.conf was made a conffile in
-    maverick. Update the check in postinst to fix upgrade from Oneiric.
-    (LP: #918323)
-  * Fix NetworkManager managed mode detection to look at
-    /etc/NetworkManager/NetworkManager.conf instead of
-    /etc/NetworkManager/nm-system-settings.conf (LP: #918354)
+ -- Andrew Shadura <andrewsh@debian.org>  Wed, 27 Nov 2013 08:24:41 +0100
 
- -- Stéphane Graber <stgraber@ubuntu.com>  Wed, 18 Jan 2012 14:19:03 -0500
+ifupdown (0.7.47) unstable; urgency=low
 
-ifupdown (0.7~beta2ubuntu2) precise; urgency=low
+  * Don't use hardlinks for ifdown and ifquery.
+  * Remove Petter from the Uploaders.
+  * Ensure netdev group exists.
 
-  * Make sure we always call dhclient(3) with /var/lib/dhcp instead of
-    /var/lib/dhcp3 (needed as dhclient3 is now a symlink to dhclient).
-    (LP: #900234)
-  * Fix typo in previous changelog entry (LP: #916263)
-  * Automatically convert network-interface-security.conf to a conffile
-    (LP: #917185)
+ -- Andrew Shadura <andrewsh@debian.org>  Tue, 26 Nov 2013 08:27:29 +0100
 
- -- Stéphane Graber <stgraber@ubuntu.com>  Mon, 16 Jan 2012 17:54:26 -0500
+ifupdown (0.7.46.1) unstable; urgency=low
 
-ifupdown (0.7~beta2ubuntu1) precise; urgency=low
+  * Disable DHCP test on Hurd to make the package buildable again.
 
-  * Resynchronise with Debian experimental.  Remaining changes
-    (LP: #905660, LP: #850566, LP: #611877, LP: #678425):
-    - ifupdown.nw: Use 100 as default route metric unless an explicit metric
-      parameter is set in /etc/network/interface.
-    - Add iniparser3.0b sources (dictionary.c, dictionary.h, iniparser.c,
-      iniparser.h), to let ifupdown avoid auto-up/down of interfaces if
-      network-manager's ifupdown plugin is in managed=true mode.
-    - Add a new query interface, 'ifquery', that can be used by upstart
-      hooks to ask for the list of possible interfaces that they might need
-      to bring up.
-    - debian/ifupdown.network-interface.upstart: Replace the init scripts
-      with a per-interface Upstart job.
-    - debian/ifupdown.networking.upstart: Add a "networking" job that
-      partially replaces the networking init script from netbase.
-    - debian/control: Bump build-dependency on debhelper for Upstart-aware
-      dh_installinit.
-    - debian/rules: Due to debhelper always adding /etc/init.d symlinks, we
-      must manually remove /etc/init.d/networking for as long as netbase
-      still provides it.
-    - Add if-up and if-down scripts to emit Upstart events when interfaces
-      come up and go down.
-    - debian/ifupdown.network-interface-security.upstart: Ensure apport is
-      started before interfaces are brought up by either ifupdown or
-      network-manager.
-    - debian/postinst: If the loopback interface is missing from the config
-      in /etc/network/interfaces, add it on upgrade.
-    - debian/ifupdown.preinst: Since files in /etc were not conffiles in
-      lucid, and /etc/network/if-up.d/upstart and
-      /etc/init/network-interface.conf changed between lucid final and
-      maverick, add extra handling to avoid spurious conffile prompts.
-    - invoke dhclient3 with '-1', meaning it should exit failure if it does
-      not receive a response in 60 seconds. (LP: #838968)
-    - contrib/ifstate-check: Use /run/network/ifstate instead of
-      /etc/network/run/ifstate
-    - ifup.8: Update man page to indicate that Ubuntu uses /run
-      and that it's always writable as it's a temporary filesystem
-  * ifupdown.nw: When calling dhclient3, also use /var/lib/dhcp as
-    dhclient3 is now a symlink to dhclient and /var/lib/dhcp3 no longer
-    exists. (LP: #900234)
-  * Mark ifupdown as Multi-Arch foreign
-  * Replace remaining references to /var/run/network by /run/network
-    (LP: #885506)
+ -- Andrew Shadura <andrewsh@debian.org>  Wed, 13 Nov 2013 14:15:47 +0100
 
- -- Stéphane Graber <stgraber@ubuntu.com>  Thu, 12 Jan 2012 10:25:30 +0100
+ifupdown (0.7.46) unstable; urgency=low
+
+  * Update copyrights.
+  * Change /run/network ownership to root:netdev.
+  * Drop now-empty Pre-Depends.
+  * Add --state command to ifquery.
+  * Update the init script to use --state.
+
+ -- Andrew Shadura <andrewsh@debian.org>  Wed, 13 Nov 2013 13:46:58 +0100
+
+ifupdown (0.7.45) unstable; urgency=low
+
+  * Fix files enumeration in source-directory.
+  * Lock a lockfile, not the statefile (Closes: #704003).
+  * Bug fixes for Hurd (thanks to Justus Winter, closes: #720531)
+    - Accept interface names in form /dev/* on Hurd.
+    - Use inetutils-ifconfig, fix invocation of inetutils-ifconfig.
+    - Sanitize pidfile name.
+  * /lib/freebsd/route -> /sbin/route transition for kFreeBSD
+    (Closes: #721629).
+  * Set environment variables before running up and down commands.
+  * Add DAD script (most probably closes: #705996).
+  * Compat level 9.
+  * Bump Standards Version to 3.9.4 (no changes).
+
+ -- Andrew Shadura <andrewsh@debian.org>  Sat, 19 Oct 2013 20:25:51 +0200
+
+ifupdown (0.7.44) unstable; urgency=low
+
+  * Convert from noweb to plain C (Closes: #707209).
+  * Don't bring down VLANned aliases (Closes: #711449).
+  * Initialise 'verbose' variable (Closes: #710301).
+  * Handle relative paths properly (Closes: #712909).
+    Now non-absolute paths are understood relatively to the file
+    they're sourced from.
+  * Update RFC number (Closes: #717520).
+  * Add source-directory directive.
+  * Use source-directory in the default interfaces file.
+  * Remove loopback interface from the manpage example.
+  * Update the manpages (Closes: #711012).
+  * Depend on iproute2 instead of iproute (Closes: #713825).
+  * Recommend ISC DHCP client, at the same time declare Breaks against
+    dhcp3-client earlier than 4.0, as it has incompatible syntax.
+
+ -- Andrew Shadura <andrewsh@debian.org>  Thu, 08 Aug 2013 21:55:27 +0200
+
+ifupdown (0.7.43) unstable; urgency=low
+
+  * Don't consider multiple auto declarations an error (Closes: #707052).
+
+ -- Andrew Shadura <andrewsh@debian.org>  Tue, 07 May 2013 09:41:18 +0200
+
+ifupdown (0.7.42) unstable; urgency=low
+
+  * Fix syntax issue with postinst (Closes: #707041).
+  * Fix cross-build.
+
+ -- Andrew Shadura <andrewsh@debian.org>  Tue, 07 May 2013 08:09:32 +0200
+
+ifupdown (0.7.41) unstable; urgency=low
+
+  * Upload to unstable.
+  * Don't release DHCPv6 leases in inet6/auto for a while (Closes: #703922).
+  * Remove "tryonce" option introduced in 0.7.40.
+  * Don't call dhclient with -1 for now.
+  * Remove ISC DHCP client from Build-Depends.
+  * Assign logical interface name for link pseudointerface on down
+    (Closes: #705268).
+  * Add implicit loopback device definition.
+  * Enable sourcing /etc/network/interfaces.d/* in the default configuration.
+
+ -- Andrew Shadura <andrewsh@debian.org>  Thu, 11 Apr 2013 21:44:23 +0200
+
+ifupdown (0.7.40) experimental; urgency=low
+
+  [ Andrew Shadura ]
+  * Don't configure bridge interfaces as tagged VLAN interfaces
+    (Closes: #696642).
+  * Add "tryonce" option to DHCP-enabled methods (Closes: #694541).
+  * Implement inet6/auto for kFreeBSD, call DHCP release of ifdown
+    on Linux (Closes: #701884).
+  * Update manual pages.
+  * Add tests for DHCP method.
+  * Add ISC DHCP client to Build-Depends (the tests don't actually run
+    the DHCP client, however).
+
+  [ Stéphane Graber ]
+  * Patches for upstart support from Ubuntu:
+    - Start the job on runlevel [2345]. This is a no-op during a normal
+      boot since the network will be started *before* runlevel is emitted,
+      but is needed to restart the network after a change from runlevel 1
+      (LP: #752481).
+    - Don't bring 'lo' down (add it to --exclude).
+    - Emit deconfiguring-networking (LP: #1061639).
+    - Update network-interface-security job to stop when the parent job is
+      stopped itself. This avoids leftover instances (LP: #1065684).
+  * Set MTU of tunnel devices (LP: #1074048).
+  * Actually set the new calculated value for duplicate entries
+    (LP: #1086517).
+
+  [ Josselin Mouette ]
+  * postinst: Do not create /etc/network/interfaces if it was removed manually
+    (Closes: #695906)
+
+ -- Andrew Shadura <bugzilla@tut.by>  Mon, 04 Mar 2013 21:56:39 +0100
+
+ifupdown (0.7.8) unstable; urgency=medium
+
+  * Assign logical interface name for link pseudointerface on down
+    (Closes: #705268).
+
+ -- Andrew Shadura <andrewsh@debian.org>  Fri, 12 Apr 2013 11:44:21 +0200
+
+ifupdown (0.7.7) unstable; urgency=low
+
+  * Don't release DHCPv6 leases in inet6/auto for a while (Closes: #703922).
+  * Don't call dhclient with -1 for now.
+
+ -- Andrew Shadura <andrewsh@debian.org>  Mon, 25 Mar 2013 22:12:09 +0100
+
+ifupdown (0.7.6) unstable; urgency=low
+
+  [ Andrew Shadura ]
+  * Don't configure bridge interfaces as tagged VLAN interfaces
+    (Closes: #696642).
+  * Implement inet6/auto for kFreeBSD, call DHCP release of ifdown
+    on Linux (Closes: #701884).
+  * Update manual pages.
+
+  [ Stéphane Graber ]
+  * Set MTU of tunnel devices (LP: #1074048).
+  * Actually set the new calculated value for duplicate entries
+    (LP: #1086517).
+
+  [ Josselin Mouette ]
+  * postinst: Do not create /etc/network/interfaces if it was removed manually
+    (Closes: #695906)
+
+ -- Andrew Shadura <bugzilla@tut.by>  Sun, 03 Mar 2013 12:08:16 +0100
+
+ifupdown (0.7.5) unstable; urgency=low
+
+  * Fix upstart hooks (Closes: #692110).
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Fri, 02 Nov 2012 18:30:19 +0100
+
+ifupdown (0.7.4) unstable; urgency=low
+
+  * Check if upstart is the current init and don't try to call initctl if it
+    isn't (Closes: #692008).
+  * Bump lsb-base dependency to be able to use init_is_upstart.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Thu, 01 Nov 2012 12:01:17 +0100
+
+ifupdown (0.7.3) unstable; urgency=low
+
+  * Fix the calculation of broadcast addresses of obsolete scheme;
+    previously, a network mask was mistakenly used instead of them.
+  * Follow RFC 3021 regarding broadcast addresses in /31 subnets:
+    they should use limited broadcast address (Closes: #690561).
+  * Add upstart support (patch provided by Steve Langasek, closes: #679549).
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Tue, 16 Oct 2012 10:39:24 +0200
+
+ifupdown (0.7.2) unstable; urgency=low
+
+  * Don't install /etc/default/networking as executable (Closes: #679623).
+  * Declare Breaks on dhcp-client (<< 3.0) instead of Conflicts.
+  * Implement --no-scripts option (LP: #258782).
+  * Calculate the length of a string properly (Closes: #681431).
+  * When bringing hotplug interfaces up, strip VLAN and alias identifiers out
+    (Closes: #680042).
+  * LSB headers: depend on urandom.
+  * Recognize vlan+alias combination and filter aliases out (Closes: #679672).
+  * Work-around ip(8) understanding of 0NNN as octal numbers (Closes: #684698).
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Thu, 16 Aug 2012 23:22:32 +0200
+
+ifupdown (0.7.1) unstable; urgency=low
+
+  * Supply metric setting to dhclient (Closes: #279741, #364581, #676323).
+  * Add autoconf/accept_ra options to inet6/dhcp (Closes: #676244).
+  * Clean up after /run migration (Closes: #673057):
+    - Remove old /etc/network/run.dpkg-old symlink.
+    - Try to remove old /etc/network/run even if it's a symlink.
+  * Depend on initscripts >= 2.88dsf-25 so mountnfs doesn't break.
+  * Pass -q to sysctl to make the output less verbose.
+  * Fix shell scripting mistake in /etc/init.d/networking (thanks to
+    Stanislav Maslovski, closes: #678101).
+  * Changes to interfaces exclusion:
+    - Accept -X shortcut (wasn't working because of a bug).
+    - Allow specifying more than one -X option.
+    - Use shell glob syntax.
+  * Add /etc/default/networking (Closes: #580035, #677973):
+    - CONFIGURE_INTERFACES can be used to disable interfaces configuration.
+    - Individual interfaces can be excluded with EXCLUDE_INTERFACES.
+    - Extra verbosity may be requested with VERBOSE.
+  * When ifup is being run with --force -n, always report errors regardless of
+    ifstate.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Thu, 21 Jun 2012 18:59:10 +0200
+
+ifupdown (0.7) unstable; urgency=low
+
+  * Accept duplicate options in /etc/network/interfaces, join them using
+    a newline as a delimiter.
+  * If an interface isn't defined, but mentioned in auto or allow statement,
+    don't mention it in ifquery output.
+  * Change shortcut for --exclude to -X (was -e previously).
+  * Make ifquery return false if the interface isn't defined.
+  * Fix typos in the changelog.
+  * Calculate broadcast address internally.
+  * Allow concurrent netmask specification in both address (using CIDR
+    notation) and netmask for IPv6 (Closes: #674775).
+  * Add preferred-lifetime setting for IPv6.
+  * Pass -w and -e options to sysctl so we still can configure an interface
+    even if IPv6 SLAAC options can't be set for some reason.
+  * Port to GNU/Hurd (thanks to Svante Signell, closes: #296115).
+  * Chdir to root when executing external programs (Closes: #361964).
+  * Remove updetach from PPP method (Closes: #675016).
+  * Configure hotplug interfaces only if they're running (thanks to Evgeni
+    Golov, closes: #673658).
+  * Rewrite NEWS file (Closes: #673688).
+  * Update examples (Closes: #340992).
+  * Update tests.
+  * Update README.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Wed, 30 May 2012 17:45:46 +0200
+
+ifupdown (0.7~rc3) unstable; urgency=low
+
+  * Upload to unstable.
+  * Don't refer to README from netbase any more.
+  * Internal changes:
+    - Make set_variable() able to set variables conditionally.
+    - Improve conversions interface.
+    - Add some support for interface link configuration.
+    - Don't leak memory in some functions.
+  * Configure VLANs automatically (Closes: #520436).
+  * Calculate netmask internally, so even if a user haven't supplied
+    one or have used CIDR notation, hook scripts will have it properly
+    specified in IF_NETMASK environment variable.
+  * Declare Breaks/Replaces relationship against netbase << 5.0.
+  * Merge changes from Ubuntu (thanks to Stéphane Graber):
+    - Mark package as Multi-Arch: foreign.
+    - Update statefile paths in the 'contrib' scripts and in the
+      noweb source.
+  * Temporarily unapply patch for #547587.
+  * Update tests.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 14 May 2012 11:42:08 +0200
+
+ifupdown (0.7~rc2+experimental) experimental; urgency=low
+
+  * Try to bring hotplug interfaces up on initscript restart
+    action as well.
+  * Don't call ifup when there are no interfaces to bring up
+    (Closes: #670145).
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 23 Apr 2012 14:36:28 +0200
+
+ifupdown (0.7~rc1+experimental) experimental; urgency=low
+
+  * Prefer isc-dhcp-client to dhcp3-client (also closes: #422885).
+  * Let dhclient fail when no lease can be acquired (Closes: #420784).
+  * Raise command-line options priority over /etc/network/interfaces
+    (Closes: #657743).
+  * Prevent aliases and VLANs from putting the main interface down
+    (Closes: #656270).
+  * Make iproute2 calculate the broadcast address (LP: #924880).
+  * Shut udhcpc down correctly (Closes: #338348).
+  * Update the rules according to /run migration.
+  * Pass hardening flags from dpkg-buildflags (Closes: #661243).
+  * Implement ifquery interface (Closes: #568479).
+    - Make ifquery process mappings (LP: #850166).
+    - Ensure ifquery always has no_act turned on.
+  * Change --all behaviour:
+    - If ifup or ifquery is called with the --all option, if doesn't just
+      bring up all interfaces marked as "auto", but all interfaces of a
+      specified class, "auto" by default. For most uses, this doesn't
+      change anything, but lets all the interfaces of a specific class be
+      brought up or queried.
+  * Support cross-compilation, move Debian-specific things out of
+    the Makefile (Closes: #666084).
+  * Take networking init script over from netbase package.
+    - Add reload action which reconfigures all interfaces currently
+      configured.
+    - Add LSB Description field.
+    - Remove /usr from PATH.
+    - Merge ifupdown initscript in.
+    - Improve warning messages.
+    - Don't use redirection hacks when parsing /proc/mounts and /proc/swap.
+    - Document all supported subcommands.
+    - On start, try to configure hotplug interfaces if they seem to be ready.
+      Ignore errors if they fail to configure for some reason (for example,
+      if the interface happens to be renamed by udev before it's fully
+      configured).
+    - Override Lintian's false positives.
+  * Remove /etc/default/ifupdown.
+  * Call hook scripts when processing all interfaces:
+    - If ifupdown is called with the --all option, before or after doing
+      anything to the interfaces, it calls all the hook scripts (pre-up or
+      down) with IFACE set to "--all", LOGICAL set to the current class
+      specified by the --allow option (or "auto" if it's not set),
+      ADDRFAM="meta" and METHOD="none".
+  * Fix IPv6 issue on kFreeBSD.
+  * Update test suite.
+  * Improve manual pages.
+  * Bump Standards-Version to 3.9.3.
+  * Also closes: #535226:
+    - In 0.7~alpha5, "auto" method has been added.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Tue, 17 Apr 2012 01:05:42 +0200
 
 ifupdown (0.7~beta2) experimental; urgency=low
 
@@ -186,90 +459,6 @@ ifupdown (0.7~beta1) experimental; urgency=low
 
  -- Andrew O. Shadura <bugzilla@tut.by>  Tue, 23 Aug 2011 11:49:19 +0300
 
-ifupdown (0.7~alpha5.1ubuntu6) precise; urgency=low
-
-  * debian/ifupdown.preinst: further conffile upgrade handling is needed
-    for three files to get smooth upgrades from lucid (two of these were
-    modified in a lucid SRU, one was modified in oneiric that previously
-    didn't need special handling because the old and new checksums always
-    matched).  LP: #903131.
-
- -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 16 Dec 2011 23:16:47 -0800
-
-ifupdown (0.7~alpha5.1ubuntu5) oneiric; urgency=low
-
-  * use 'ifquery' in if-up.d/upstart rather than parsing interfaces
-    manually. This fixes issue where devices with 'auto' but without a 
-    config stanza would be blocked on (LP: #850226).
-
- -- Scott Moser <smoser@ubuntu.com>  Wed, 14 Sep 2011 14:30:57 -0400
-
-ifupdown (0.7~alpha5.1ubuntu4) oneiric; urgency=low
-
-  * invoke dhclient3 with '-1', meaning it should exit failure if it does
-    not receive a response in 60 seconds. (LP: #838968)
-  * fix the broken static-network-up-emitted event. This now keeps
-    state of which interfaces have been brought up by marker files
-    in /run/network named ifup.IFACE and a directory named 
-    static-network-up-emitted indicating static-network-up has been
-    emitted.
-
- -- Scott Moser <smoser@ubuntu.com>  Fri, 02 Sep 2011 15:50:47 -0400
-
-ifupdown (0.7~alpha5.1ubuntu3) oneiric; urgency=low
-
-  * Document what events are emitted properly. (LP: #819928)
-
- -- Clint Byrum <clint@ubuntu.com>  Mon, 22 Aug 2011 11:28:32 +0100
-
-ifupdown (0.7~alpha5.1ubuntu2) oneiric; urgency=low
-
-  * Rename Vcs-* to XS-Debian-Vcs-*.
-  * Close mkdir's stderr when creating
-    /var/run/network/static-network-up-emitted to silence (expected) error on
-    second run.
-
- -- Loïc Minier <loic.minier@ubuntu.com>  Wed, 10 Aug 2011 17:01:24 +0200
-
-ifupdown (0.7~alpha5.1ubuntu1) oneiric; urgency=low
-
-  * Resynchronise with Debian experimental.  Remaining changes:
-    - ifupdown.nw: Use 100 as default route metric unless an explicit metric
-      parameter is set in /etc/network/interface.
-    - ifupdown.nw: Add 'ipv4ll' method which uses avahi-autoipd to bring up
-      an interface with an IPv4 link-layer address from 169.254.0.0/16 (aka
-      'Zeroconf').
-    - Add iniparser3.0b sources (dictionary.c, dictionary.h, iniparser.c,
-      iniparser.h), to let ifupdown avoid auto-up/down of interfaces if
-      network-manager's ifupdown plugin is in managed=true mode.
-    - Add a new query interface, 'ifquery', that can be used by upstart
-      hooks to ask for the list of possible interfaces that they might need
-      to bring up.
-    - debian/ifupdown.network-interface.upstart: Replace the init scripts
-      with a per-interface Upstart job.
-    - debian/ifupdown.networking.upstart: Add a "networking" job that
-      partially replaces the networking init script from netbase.
-    - debian/control: Bump build-dependency on debhelper for Upstart-aware
-      dh_installinit.
-    - debian/rules: Due to debhelper always adding /etc/init.d symlinks, we
-      must manually remove /etc/init.d/networking for as long as netbase
-      still provides it.
-    - Add if-up and if-down scripts to emit Upstart events when interfaces
-      come up and go down.
-    - debian/ifupdown.network-interface-security.upstart: Ensure apport is
-      started before interfaces are brought up by either ifupdown or
-      network-manager.
-    - debian/postinst: If the loopback interface is missing from the config
-      in /etc/network/interfaces, add it on upgrade.
-    - debian/ifupdown.preinst: Since files in /etc were not conffiles in
-      lucid, and /etc/network/if-up.d/upstart and
-      /etc/init/network-interface.conf changed between lucid final and
-      maverick, add extra handling to avoid spurious conffile prompts.
-  * Backport from upstream Mercurial repository:
-    - Add initial DHCPv6 support (LP: #733547).
-
- -- Colin Watson <cjwatson@ubuntu.com>  Tue, 09 Aug 2011 14:41:00 +0100
-
 ifupdown (0.7~alpha5.1) experimental; urgency=low
 
   * Non-maintainer upload.
@@ -277,6 +466,60 @@ ifupdown (0.7~alpha5.1) experimental; urgency=low
   * Upload to experimental rather than unstable.
 
  -- Roger Leigh <rleigh@debian.org>  Tue, 14 Jun 2011 18:44:11 +0100
+
+ifupdown (0.7~alpha5+really0.6.16) unstable; urgency=low
+
+  * Use FreeBSD version of route, thanks to Robert Millan
+    for the patch (Closes: #646291).
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Sun, 23 Oct 2011 21:10:44 +0300
+
+ifupdown (0.7~alpha5+really0.6.15) unstable; urgency=low
+
+  * Replace /etc/network/run.dpkg-old correctly (Closes: #639612).
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 29 Aug 2011 11:00:17 +0300
+
+ifupdown (0.7~alpha5+really0.6.14) unstable; urgency=low
+
+  * Create /etc/network/interfaces correctly (Closes: #638718).
+  * Correct the spelling of the maintainer's last name.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 22 Aug 2011 23:02:50 +0300
+
+ifupdown (0.7~alpha5+really0.6.13) unstable; urgency=low
+
+  * Clean up SysV symlinks on upgrade (Closes: #637804).
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Sun, 14 Aug 2011 21:36:02 +0300
+
+ifupdown (0.7~alpha5+really0.6.12) unstable; urgency=low
+
+  * Fix init script dependencies so we don't try to remove state
+    file before the root filesystem is remounted R/W (Closes: #637435).
+  * Don't install ifupdown.init on runlevels 0 and 6.
+  * Add Vcs-Hg field.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Sat, 13 Aug 2011 20:05:15 +0300
+
+ifupdown (0.7~alpha5+really0.6.11) unstable; urgency=low
+
+  * Backport the fixes for the following bugs from 0.7 branch:
+    - Suggest isc-dhcp-client instead of dhcp3-client (Closes: #631414).
+    - Remove Default-Stop from the LSB headers (Closes: #630506).
+    - Fix init script dependencies (Closes: #607713).
+  * Report the correct version number on --version.
+
+ -- Andrew O. Shadura <bugzilla@tut.by>  Sun, 07 Aug 2011 15:38:26 +0300
+
+ifupdown (0.7~alpha5+really0.6.10) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * No source changes.
+  * Bump version to replace 0.7~alpha5 which was uploaded to
+    unstable (rather than experimental) by mistake (Closes: #630501).
+
+ -- Roger Leigh <rleigh@debian.org>  Tue, 14 Jun 2011 17:48:20 +0100
 
 ifupdown (0.7~alpha5) experimental; urgency=low
 
@@ -357,98 +600,6 @@ ifupdown (0.7~alpha2) experimental; urgency=low
 
  -- Anthony Towns <aj@azure.humbug.org.au>  Mon, 18 Jun 2007 15:47:21 +0100
 
-ifupdown (0.6.10ubuntu5) oneiric; urgency=low
-
-  [Scott Moser]
-  * debian/ifupdown.upstart.if-up: emit static-network-up when all auto
-    network interfaces are up. (LP: #810044)
-
-  [ Clint Byrum ]
-  * debian/rules: dh_installinit has changed and exposes that the
-    network-interface-security job should also have --noscripts
-
- -- Clint Byrum <clint@ubuntu.com>  Mon, 01 Aug 2011 12:40:37 -0700
-
-ifupdown (0.6.10ubuntu4) natty; urgency=low
-
-  * debian/ifupdown.network-interface{,-security}.upstart: handle race
-    condition when loading AppArmor profiles for interfaces (LP: #689892).
-
- -- Kees Cook <kees@ubuntu.com>  Mon, 13 Dec 2010 13:53:12 -0800
-
-ifupdown (0.6.10ubuntu3) maverick; urgency=low
-
-  * debian/ifupdown.preinst: since files in /etc were not conffiles in
-    lucid, and /etc/network/if-up.d/upstart and
-    /etc/init/network-interface.conf changed between lucid final and
-    maverick, add extra handling to avoid spurious conffile prompts.
-    LP: #620956.
-
- -- Steve Langasek <steve.langasek@ubuntu.com>  Tue, 31 Aug 2010 02:11:35 +0000
-
-ifupdown (0.6.10ubuntu2) maverick; urgency=low
-
-  * debian/ifupdown.network-interface.conf: Bring up lo manually, so that it
-    comes up even if /etc/network/interfaces is broken (LP: #512253).
-  * debian/ifupdown.upstart.if-up: Don't emit a duplicate net-device-up
-    event for lo here, as network-interface.conf will have taken care of it.
-
- -- Colin Watson <cjwatson@ubuntu.com>  Thu, 22 Jul 2010 13:52:49 +0100
-
-ifupdown (0.6.10ubuntu1) maverick; urgency=low
-
-  * Merge from Debian unstable, remaining changes:
-    - ifupdown.nw: use 100 as default route metric unless an explicit metric
-      parameter is set in /etc/network/interface
-    - ifupdown.nw: Add 'ipv4ll' method which uses avahi-autoipd to bring up
-      an interface with an IPv4 link-layer address from 169.254.0.0/16 (aka
-      'Zeroconf').
-    - Add iniparser3.0b sources (dictionary.c, dictionary.h, iniparser.c,
-      iniparser.h), to let ifupdown avoid auto-up/down of interfaces if
-      network-manager's ifupdown plugin is in managed=true mode
-    - move ifstate file to /var/run/network/ifstate
-    - Add a new query interface, 'ifquery', that can be used by upstart
-      hooks to ask for the list of possible interfaces that they might need
-      to bring up.
-    - debian/ifupdown.network-interface.upstart: replace the init scripts
-      with a per-interface Upstart job.
-    - debian/ifupdown.networking.upstart: add a "networking" job that
-      partially replaces the networking init script from netbase.
-    - debian/control: bump build-dependency on debhelper for Upstart-aware
-      dh_installinit.
-    - debian/rules: due to debhelper always adding /etc/init.d symlinks, we
-      must manually remove /etc/init.d/networking for as long as netbase
-      still provides it.
-    - Add if-up and if-down scripts to emit Upstart events when interfaces
-      come up and go down.
-    - debian/ifupdown.network-interface-security.upstart: ensure apport is
-      started before interfaces are brought up by either ifupdown or
-      network-manager.
-    - debian/postinst: if the loopback interface is missing from the config
-      in /etc/network/interfaces, add it on upgrade.
-    - Fix a wrong path to examples in the interfaces(5) manpage.
-  * Changes superseded in Debian:
-    - ifupdown.nw: modprobe ipv6 before configuring it.
-    - debian/control: Add missing ${misc:Depends}
-  * Dropped changes:
-    - Drop versioned dependency on netbase - no rationale is given for the
-      dependency to exist at all.
-    - No need to version the dep on lsb-base, every release since dapper and
-      earlier satisfies this constraint.
-    - Drop Breaks on old, pre-jaunty versions of udev.
-    - Drop migration of "mapping hotplug" to "auto", this migration was done
-      in hardy and upstream has dropped the debconf support so let's not
-      readd it.
-    - Drop edits to ifupdown-clean, no longer used in Ubuntu.
-    - Drop the udev rules, which are now completely superseded by upstart
-      jobs.
-    - Drop preinst, postinst cleanup of the obsolete, Ubuntu-specific
-      loopback script.
-  * update all generated files to match their source versions (*.defn,
-    main.c).
-
- -- Steve Langasek <steve.langasek@ubuntu.com>  Thu, 03 Jun 2010 17:18:43 +0000
-
 ifupdown (0.6.10) unstable; urgency=low
 
   * Try to load the ipv6 module when doing up on inet6 stansas except
@@ -509,283 +660,6 @@ ifupdown (0.6.8+nmu1) unstable; urgency=low
 
  -- Christian Perrier <bubulle@debian.org>  Sat, 12 Apr 2008 13:32:24 +0200
 
-ifupdown (0.6.8ubuntu29) lucid; urgency=low
-
-  * debian/postinst: if the loopback interface is missing from the config in
-    /etc/network/interfaces, add it on upgrade; there is no valid use case
-    for a system without localhost, and not bringing this up will cause
-    upstart runlevel handling to fail.  LP: #497299.
-
- -- Steve Langasek <steve.langasek@ubuntu.com>  Fri, 19 Feb 2010 20:29:32 -0800
-
-ifupdown (0.6.8ubuntu28) lucid; urgency=low
-
-  * debian/ifupdown.upstart.if-up, debian/ifupdown.upstart.if-down:
-    - Do not wait for the Upstart event to complete; while this seems like
-      a good idea, it can cause "ifup -a" to hang forever if anybody creates
-      a job that waits for two interfaces to come up.
-
-      I still want this to be the default behaviour for "emit", and I do
-      want this to block, but I need to fix Upstart first so that it doesn't
-      keep happening accidentally.
-
- -- Scott James Remnant <scott@ubuntu.com>  Wed, 17 Feb 2010 11:03:18 +0000
-
-ifupdown (0.6.8ubuntu27) lucid; urgency=low
-
-  * Add a new query interface, 'ifquery', that can be used by upstart hooks
-    to ask for the list of possible interfaces that they might need to bring
-    up.
-
- -- Steve Langasek <steve.langasek@ubuntu.com>  Thu, 04 Feb 2010 16:28:53 -0800
-
-ifupdown (0.6.8ubuntu26) lucid; urgency=low
-
-  * debian/ifupdown.network-interface-security.upstart: do not load on liveCD.
-
- -- Kees Cook <kees@ubuntu.com>  Fri, 08 Jan 2010 08:24:52 -0800
-
-ifupdown (0.6.8ubuntu25) lucid; urgency=low
-
-  * debian/ifupdown.network-interface-security.upstart:
-    - trigger on network-manager too.
-    - load from a directory rather than hard-coded list of profiles.
-
- -- Kees Cook <kees@ubuntu.com>  Tue, 15 Dec 2009 10:33:15 -0800
-
-ifupdown (0.6.8ubuntu24) lucid; urgency=low
-
-  * debian/ifupdown.network-interface-security.upstart:
-    - Assume that virtual-filesystems are mounted; we can get away with
-      this because of the start conditions of networking and network-interface
-      if we don't every other network interface will wait for virtual
-      filesystems to get mounted again.
-
-      I *really* need to fix this Upstart bug!
-
- -- Scott James Remnant <scott@ubuntu.com>  Tue, 15 Dec 2009 18:05:41 +0000
-
-ifupdown (0.6.8ubuntu23) lucid; urgency=low
-
-  * debian/ifupdown.network-interface.upstart:
-  * debian/ifupdown.networking.upstart:
-    - Revert Kees's change; this flat out doesn't work.
-  * debian/ifupdown.network-interface-security.upstart:
-    - Instead use "starting" so that the network-interface-security job
-      is started before the first network-interface, and blocks it from
-      finishing.
-
-  (The above fixes the second ifup never completing due to waiting for
-   network-interface-security to be restarted - which will never happen.)
-
-  * debian/ifupdown.networking.upstart:
-    - Make /var/run/network as we do in the network-interface job; this
-      might end up running first.  LP: #446031.
-
- -- Scott James Remnant <scott@ubuntu.com>  Tue, 15 Dec 2009 14:34:56 +0000
-
-ifupdown (0.6.8ubuntu22) lucid; urgency=low
-
-  * Add AppArmor boot-time bits to upstart jobs.
-  * Due to debhelper always adding /etc/init.d symlinks, we must
-    manually remove /etc/init.d/networking for as long as netbase
-    still provides it.
-
- -- Kees Cook <kees@ubuntu.com>  Fri, 04 Dec 2009 10:11:38 -0800
-
-ifupdown (0.6.8ubuntu21) karmic; urgency=low
-
-  * --no-scripts is not --noscripts.  LP: #430878.
-
- -- Scott James Remnant <scott@ubuntu.com>  Tue, 22 Sep 2009 15:30:28 -0700
-
-ifupdown (0.6.8ubuntu20) karmic; urgency=low
-
-  FFE LP: #427356.
-
-  * Replace the udev rule with a per-interface Upstart job.
-  * Add a "networking" job that partially replaces the networking init
-    script from netbase.
-  * debian/control:
-    - Bump build-dependency on debhelper for Upstart-aware dh_installinit
-    - Add missing ${misc:Depends}
-
-  * Add if-up and if-down scripts to emit Upstart events when interfaces
-    come up and go down.
-
- -- Scott James Remnant <scott@ubuntu.com>  Tue, 15 Sep 2009 03:30:29 +0100
-
-ifupdown (0.6.8ubuntu19) jaunty; urgency=low
-
-  * debian/ifupdown.udev: In fact, there's no reason not to call the ifup
-    unconditionally either; if it doesn't have a driver, but is listed in
-    /etc/network/interfaces with "auto" we can still have a crack at
-    bringing it up.  We may as well make the /var/run/network directory
-    in this rule too.
-  * debian/loopback.init: Then this init script can go away.
-
- -- Scott James Remnant <scott@ubuntu.com>  Thu, 05 Mar 2009 14:13:53 +0000
-
-ifupdown (0.6.8ubuntu18) jaunty; urgency=low
-
-  * debian/ifupdown.udev: Unconditionally call ifdown when the network
-    interface is removed, instead of checking DRIVERS which is likely gone
-    anyway.  LP: #130437.
-  * Clean up the mess of the rules file while I was in there ;)
-
- -- Scott James Remnant <scott@ubuntu.com>  Thu, 05 Mar 2009 14:11:42 +0000
-
-ifupdown (0.6.8ubuntu17) jaunty; urgency=low
-
-  * Restore _darcs directory caused by using intrepid's dpkg; makes the
-    Debian->Ubuntu diff somewhat more readable. 
-
- -- Scott James Remnant <scott@ubuntu.com>  Thu, 05 Mar 2009 14:01:18 +0000
-
-ifupdown (0.6.8ubuntu16) jaunty; urgency=low
-
-  * modprobe failures for ipv6 are benign as the module is likely built-in.
-    (LP: #107432)
-  * modprobe -Q is now deprecated and going away, move to using -q.
-  * modprobe for ipv6 should honour the blacklists.
-  * update all generated files to match their source versions (*.defn,
-    main.c).
-
- -- Andy Whitcroft <apw@canonical.com>  Thu, 05 Mar 2009 13:47:48 +0000
-
-ifupdown (0.6.8ubuntu15) jaunty; urgency=low
-
-  * Add Breaks to ensure the right version of udev is used.
-
- -- Scott James Remnant <scott@ubuntu.com>  Fri, 09 Jan 2009 11:55:30 +0000
-
-ifupdown (0.6.8ubuntu14) jaunty; urgency=low
-
-  * debian/ifupdown.rules: Rename to debian/ifupdown.udev so debhelper can
-    pick it up.
-  * debian/rules: Use dh_installudev to install the udev rule.
-  * debian/dirs: Drop /etc/udev/rules.d
-  * debian/conffiles: Drop old rules location.
-  * debian/control: Increase dependency on debhelper.
-
- -- Scott James Remnant <scott@ubuntu.com>  Wed, 07 Jan 2009 10:22:03 +0000
-
-ifupdown (0.6.8ubuntu13) jaunty; urgency=low
-
-  * debian/ifupdown.rules: remove udev rule that ensures that the networking
-    init script has been started. We want to configure network interfaces as
-    soon as possible ie at discovery time. ifupdown scripts that don't work
-    early in the boot process should fail gracefully and leave the interface
-    unconfigured until networking is started.
-
- -- Mathias Gug <mathiaz@ubuntu.com>  Wed, 26 Nov 2008 18:34:03 -0500
-
-ifupdown (0.6.8ubuntu12) intrepid; urgency=low
-
-  * resurrect _darcs directory
-
- -- Alexander Sack <asac@ubuntu.com>  Mon, 13 Oct 2008 00:12:03 +0200
-
-ifupdown (0.6.8ubuntu11) intrepid; urgency=low
-
-  * If the /etc/NetworkManager/nm-system-settings.conf file is present
-    but doesn't have the "ifupdown:managed" the previous upload instructed
-    the iniparser to return -1, which evaluates to TRUE. We instead instruct
-    it to return 0, as we shouldn't prevent ifupdown from managing the
-    interfaces in that case, as NM won't either. (LP: #281984)
-
- -- James Westby <james.westby@canonical.com>  Sun, 12 Oct 2008 16:09:15 +0100
-
-ifupdown (0.6.8ubuntu10) intrepid; urgency=low
-
-  https://lists.ubuntu.com/archives/ubuntu-devel/2008-October/026656.html:
-
-  * stop ifupdown to auto-up/down interfaces if network-manager's
-    ifupdown plugin is in managed=true mode
-    - add iniparser3.0b sources
-      + add dictionary.c,dictionary.h,iniparser.c,iniparser.h
-    - Makefile: add iniparser objects to build (aka OBJ)
-
- -- Alexander Sack <asac@ubuntu.com>  Thu, 09 Oct 2008 16:46:47 +0200
-
-ifupdown (0.6.8ubuntu9) intrepid; urgency=low
-
-  * debian/ifupdown.rules: (the udev rule) ensure that the init script
-    /etc/network/networking has been started to ensure that the udev
-    script does not start too early in the boot process. This way we
-    ensure that the root file system is already writable and ifupdown has
-    a chance to actually work. LP: #44194
-  * Add versioned dependency on a version of netbase that actually does
-    indicate that it has been configured.
-
- -- Reinhard Tartler <siretart@tauware.de>  Sat, 21 Jun 2008 23:32:56 +0200
-
-ifupdown (0.6.8ubuntu8) gutsy; urgency=low
-
-  * ifupdown.nw: use 100 as default route metric unless an explicit metric
-    parameter is set in /etc/network/interface; this applies for static and
-    dhcp interfaces and passes the -e IF_METRIC=%metric% option to dhclient{3}
-    in order to accomplish this. For details see the launchpad bug
-    (LP: #139403).
-
- -- Alexander Sack <asac@ubuntu.com>  Thu, 20 Sep 2007 00:38:33 +0200
-
-ifupdown (0.6.8ubuntu7) gutsy; urgency=low
-
-  * Fix a wrong example location into interfaces(5) manpage (LP: #97509).
-
- -- William Lima <wlima.amadeus@gmail.com>  Fri, 22 Jun 2007 15:14:23 -0300
-
-ifupdown (0.6.8ubuntu6) feisty; urgency=low
-
-  * Change DRIVERS!= to use the start/end trick, since DRIVERS!= doesn't
-    work.  LP: #102675.
-
- -- Scott James Remnant <scott@ubuntu.com>  Tue, 10 Apr 2007 12:44:13 +0100
-
-ifupdown (0.6.8ubuntu5) feisty; urgency=low
-
-  * Change DRIVER to DRIVERS to suppress a warning, even though I think we
-    really wanted the former.  LP: #102770.
-
- -- Scott James Remnant <scott@ubuntu.com>  Wed,  4 Apr 2007 10:27:14 +0100
-
-ifupdown (0.6.8ubuntu4) feisty; urgency=low
-
-  * Update udev rules so that devices without a driver don't get ifup
-    or ifdown called for them, and are left to the S40networking script.
-    LP: #78043.
-
- -- Scott James Remnant <scott@ubuntu.com>  Tue,  3 Apr 2007 16:11:28 +0100
-
-ifupdown (0.6.8ubuntu3) feisty; urgency=low
-  
-  * ifupdown.nw: modprobe ipv6 before configuring it.
-  (Closes LP: #7091)
-
- -- Fabio M. Di Nitto <fabbione@ubuntu.com>  Fri, 30 Mar 2007 08:54:50 +0200
-
-ifupdown (0.6.8ubuntu2) feisty; urgency=low
-
-  * ifupdown.nw: Add 'ipv4ll' method which uses avahi-autoipd to bring up an
-    interface with an IPv4 link-layer address from 169.254.0.0/16 (aka
-    'Zeroconf'). See https://wiki.ubuntu.com/ZeroConfNetworking for details.
-    (This patch was prepared last November, but for some reason never made it
-    to the archive)
-  * debian/control: Set Ubuntu maintainer.
-
- -- Martin Pitt <martin.pitt@ubuntu.com>  Tue, 20 Feb 2007 11:25:38 +0100
-
-ifupdown (0.6.8ubuntu1) feisty; urgency=low
-
-  * Merge from debian unstable, remaining changes:
-    - ship udev rules to call ifup
-    - init script to bring up loopback seperately
-    - ifstate file moved to /var/run/network/ifstate, no need to clean up
-    - dhcp3 leases files moved to /var/lib/dhcp3
-
- -- Scott James Remnant <scott@ubuntu.com>  Mon, 27 Nov 2006 13:16:58 +0000
-
 ifupdown (0.6.8) unstable; urgency=low
 
   * Add myself as co-maintainer with approval from Anthony Towns.
@@ -809,81 +683,6 @@ ifupdown (0.6.8) unstable; urgency=low
     #384438, #387155, #387453, #387677)
 
  -- Petter Reinholdtsen <pere@debian.org>  Thu, 28 Sep 2006 18:14:47 +0200
-
-ifupdown (0.6.7ubuntu7) dapper; urgency=low
-
-  * Fix up the interfaces file removing duplicated "auto" lines, and
-    don't write them in the first place.  Ubuntu #29654.
-
- -- Scott James Remnant <scott@ubuntu.com>  Mon, 30 Jan 2006 12:45:19 +0000
-
-ifupdown (0.6.7ubuntu6) dapper; urgency=low
-
-  * Rewrite the way that ifup and ifdown read and write the state file.
-    Instead of storing it in memory and holding a lock on it (preventing
-    concurrent processes from actually being concurrent) use atomic read and
-    write functions that only hold the lock for very short periods.
-
-  * Write to the state file when we start bringing up or tearing down the
-    interface, so we don't ever try to do the same operation at the same
-    time.
-  * Update the state file once the operation is complete to ensure we
-    record the actual status of it.
-  
-  * Restore the dhcp wait, so "ifup eth0" will hang around until DHCP is
-    either successful or times out.  Adjust the udev rule again so that
-    udevplug doesn't hang around.
-
- -- Scott James Remnant <scott@ubuntu.com>  Thu, 26 Jan 2006 15:56:54 +0000
-
-ifupdown (0.6.7ubuntu5) dapper; urgency=low
-
-  * Don't wait for dhcp to complete ... there's a general ifup problem that
-    it doesn't have any state to record "I'm bringing this interface up",
-    so no way to avoid multiple dhcp invocations for the same interface which
-    end up blocking on each other.  This is a short-term hack until I sit
-    down and think about this properly (probably next week at the sprint).
-
- -- Scott James Remnant <scott@ubuntu.com>  Tue, 24 Jan 2006 18:04:53 +0000
-
-ifupdown (0.6.7ubuntu4) dapper; urgency=low
-
-  * Install new loopback init script at S:S08 which brings up the loopback
-    (127.0.0.1) network device early enough for anything needing DHCP.  This
-    also deals with creating /var/run/network if necessary.
-  * Move /etc/network/run/ifstate to /var/run/network/ifstate
-  * Drop the ifupdown and ifupdown-clean init scripts as everything they did
-    is obsolete or already taken care of.
-  
-  * Ship a udev rule that brings network devices up or down if the device
-    is marked "auto" in the configuration file.
-  * Convert existing /etc/network/interfaces file with "mapping hotplug"
-    lines to just use "auto" lines.
-  
-  * Adjusted "ifup -a" and "ifdown -a" to not report when interfaces are
-    already up or down.
-
- -- Scott James Remnant <scott@ubuntu.com>  Mon, 23 Jan 2006 18:56:54 +0000
-
-ifupdown (0.6.7ubuntu3) dapper; urgency=low
-
-  * Silence init.d/ifupdown-clean
-
- -- Matt Zimmerman <mdz@ubuntu.com>  Wed,  4 Jan 2006 09:46:09 -0800
-
-ifupdown (0.6.7ubuntu2) dapper; urgency=low
-
-  * Change the dhclient3 leases path to /var/lib/dhcp3 so the leases survive
-    a reboot.  (Ubuntu: #18148)
-
- -- Scott James Remnant <scott@ubuntu.com>  Wed, 23 Nov 2005 16:11:30 +0000
-
-ifupdown (0.6.7ubuntu1) breezy; urgency=low
-
-  * Resynchronise with Debian, resolving merge conflicts.
-  * Remove the initscripts dependency, since we now use our own readlink.
-
- -- Adam Conrad <adconrad@ubuntu.com>  Fri, 27 May 2005 06:43:06 +0000
 
 ifupdown (0.6.7-0.4) unstable; urgency=low
 
@@ -1042,32 +841,6 @@ ifupdown (0.6.4-4.11) unstable; urgency=low
 
  -- Thomas Hood <jdthood@yahoo.co.uk>  Sun, 12 Sep 2004 14:46:29 +0200
 
-ifupdown (0.6.4-4.10ubuntu4) breezy; urgency=low
-
-  * Fixed typo in interfaces (5) man page (closes: Ubuntu #9854)
-
- -- Charles Majola <charles@ubuntu.com>  Thu, 12 May 2005 10:12:36 +0200
-
-ifupdown (0.6.4-4.10ubuntu3) hoary; urgency=low
-
-  * Add a dependency on initscripts (>= 2.85-12) to make sure we get
-    a working /lib/init/readlink for our scripts (Ubuntu bug #8605)
-
- -- Adam Conrad <adconrad@0c3.net>  Tue,  5 Apr 2005 10:29:07 +0000
-
-ifupdown (0.6.4-4.10ubuntu2) hoary; urgency=low
-
-  * Fancify new ifupdown-clean init script
-  * Re-fancify ifupdown init script due to many conflicts
-
- -- Matt Zimmerman <mdz@canonical.com>  Thu, 28 Oct 2004 21:00:28 -0700
-
-ifupdown (0.6.4-4.10ubuntu1) hoary; urgency=low
-
-  * Resynchronise with Debian.
-
- -- Scott James Remnant <scott@canonical.com>  Wed, 27 Oct 2004 21:41:56 +0100
-
 ifupdown (0.6.4-4.10) unstable; urgency=low
 
   * Non-maintainer upload. Fix critical bugs.
@@ -1138,17 +911,6 @@ ifupdown (0.6.4-4.9) unstable; urgency=low
 	
  -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Wed, 28 Jul 2004 17:04:19 +0200
 
-ifupdown (0.6.4-4.8ubuntu2) warty; urgency=low
-
-  * Added versioned depend on lsb-base
-
- -- Nathaniel McCallum <npmccallum@canonical.com>  Fri,  3 Sep 2004 14:55:12 -0400
-
-ifupdown (0.6.4-4.8ubuntu1) warty; urgency=low
-
-  * debian/ifupdown.init: pretty initscript
-
- -- Nathaniel McCallum <npmccallum@canonical.com>  Fri,  3 Sep 2004 11:00:40 -0400
 
 ifupdown (0.6.4-4.8) unstable; urgency=low
 

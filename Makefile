@@ -1,7 +1,6 @@
-VERSION ?= 0.7~beta
-CFLAGS := -Wall -W -g -O2 -D'IFUPDOWN_VERSION="$(VERSION)"'
-CC ?= gcc
-ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+VERSION ?= 0.7
+CFLAGS ?= -Wall -W -g -O2 -D'IFUPDOWN_VERSION="$(VERSION)"'
+ARCH ?= linux
 
 BASEDIR ?= $(DESTDIR)
 
@@ -11,26 +10,26 @@ PERLFILES := defn2c.pl defn2man.pl
 DEFNFILES := inet.defn ipx.defn inet6.defn can.defn
 
 OBJ := main.o addrfam.o execute.o config.o \
-	$(patsubst %.defn,%.o,$(DEFNFILES)) arch$(ARCH).o \
-	dictionary.o iniparser.o
+	$(patsubst %.defn,%.o,$(DEFNFILES)) arch$(ARCH).o meta.o link.o
 
 MAN := $(patsubst %.defn,%.man,$(DEFNFILES))
+DEFNFILES += meta.defn link.defn
 
 default : executables
 all : executables docs
 
-executables : ifup ifdown ifquery ifup.8 ifdown.8 interfaces.5
+executables : ifup ifdown ifquery ifup.8 ifdown.8 ifquery.8 interfaces.5
 docs : ifupdown.ps.gz ifup.8.ps.gz interfaces.5.ps.gz ifupdown.pdf
 
-.PHONY : executables 
-.PHONY : clean clobber
+.PHONY : executables
+.PHONY : clean distclean
 
 install :
 	install -m 0755 -d     ${BASEDIR}/sbin
 	install -m 0755 ifup   ${BASEDIR}/sbin
-	ln ${BASEDIR}/sbin/ifup ${BASEDIR}/sbin/ifdown	
-	ln ${BASEDIR}/sbin/ifup ${BASEDIR}/sbin/ifquery
-
+	ln -s /sbin/ifup ${BASEDIR}/sbin/ifdown
+	ln -s /sbin/ifup ${BASEDIR}/sbin/ifquery
+	install -D -m 0755 settle-dad.sh $(BASEDIR)/lib/ifupdown/settle-dad.sh
 
 clean :
 	rm -f *.aux *.toc *.log *.bbl *.blg *.ps *.eps *.pdf
@@ -39,11 +38,8 @@ clean :
 	rm -f ifup ifdown ifquery interfaces.5 ifdown.8 ifquery.8
 	rm -f ifupdown.dvi *.ps{,.gz}
 
-clobber : clean
-	rm -f ifupdown.tex $(PERLFILES) $(CFILES) $(HFILES) $(DEFNFILES)
+distclean : clean
 
-distclean : clobber
-	rm -f makecdep.sh makenwdep.sh Makefile
 ifup: $(OBJ)
 	$(CC) $(CFLAGS) $^ $(LDFLAGS) $(OUTPUT_OPTION)
 
@@ -52,7 +48,6 @@ ifdown: ifup
 
 ifquery: ifup
 	ln -sf ifup ifquery
-
 interfaces.5: interfaces.5.pre $(MAN)
 	sed $(foreach man,$(MAN),-e '/^##ADDRESSFAM##$$/r $(man)') \
 	     -e '/^##ADDRESSFAM##$$/d' < $< > $@	
@@ -109,5 +104,5 @@ ifeq "clobber" "$(MAKECMDGOALS)"
 include-deps := NO
 endif
 ifeq "$(strip $(include-deps))" "YES"
-include ifupdown.d
+-include ifupdown.d
 endif
