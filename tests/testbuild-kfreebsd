@@ -1,0 +1,31 @@
+#!/bin/sh -e
+
+dir=tests/kfreebsd
+
+result=true
+for test in 1 2 3 4 5 6; do
+        args="$(cat $dir/testcase.$test | sed -n 's/^# RUN: //p')"
+        ./ifup --no-loopback -nv --force -i $dir/testcase.$test $args \
+                >$dir/up-res-out.$test 2>$dir/up-res-err.$test ||
+                true
+        (echo "====stdout===="; cat $dir/up-res-out.$test
+         echo "====stderr===="; cat $dir/up-res-err.$test) > $dir/up-res.$test
+
+        echo "Testcase $test: $args"
+
+        if diff -ub $dir/up.$test $dir/up-res.$test; then
+                echo "(okay)"
+        else
+                echo "(failed)"
+                result=false
+        fi
+        echo "=========="
+done
+
+if $result; then
+        echo "(okay overall)"
+        exit 0
+else
+        echo "(failed overall)"
+        exit 1
+fi

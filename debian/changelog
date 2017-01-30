@@ -1,3 +1,291 @@
+ifupdown (0.8.19) unstable; urgency=medium
+
+  * Fix exit code of ifquery --state. Closes: #852976
+
+ -- Guus Sliepen <guus@debian.org>  Mon, 30 Jan 2017 14:32:18 +0100
+
+ifupdown (0.8.18) unstable; urgency=medium
+
+  [ Svante Signell ]
+  * Makefile: Add removal of tests/*/state.* directories in the clean target.
+  * Update testcases for GNU/Hurd.
+
+  [ Guus Sliepen ]
+  * Use dynamically allocated strings for filenames. This avoids using
+    PATH_MAX, which caused a FTBFS on Hurd. Based on Svante's patch.
+    Closes: #845140
+  * Fix some memory leaks.
+  * Improve error messages.
+  * Always immediately quit when running out of memory.
+
+ -- Guus Sliepen <guus@debian.org>  Wed, 11 Jan 2017 20:43:06 +0100
+
+ifupdown (0.8.17) unstable; urgency=medium
+
+  [ Scott Moser ]
+  * Don't bring down the loopback interface when networking.service stops.
+    Closes: #841106, #841107
+
+  [ Guus Sliepen ]
+  * Export $CLASS to scripts.
+  * Add a bug-script.
+  * Depend on freebsd-net-tools instead of net-tools.
+  * Also configure VLANs on bridge interfaces (see #818849).
+  * Improve manpage: simplify example, add more section headers.
+    Closes: #840579
+  * Provide IPv6 examples in /u/s/d/ifupdown/examples/network-interfaces.
+    Closes: #703568
+  * Use -4 option for IPv4 dhclient. Closes: #844592
+
+  [ Martin Pitt ]
+  * ifup@.service: start After the corresponding
+    sys-subsystem-net-devices device.
+
+ -- Guus Sliepen <guus@debian.org>  Tue, 10 Jan 2017 17:25:18 +0100
+
+ifupdown (0.8.16) unstable; urgency=medium
+
+  * Fix FTBFS due to testcases using the host's state information.
+
+ -- Guus Sliepen <guus@debian.org>  Thu, 22 Sep 2016 13:20:18 +0200
+
+ifupdown (0.8.15) unstable; urgency=medium
+
+  * Fix ifdown complaining about vlan_id1. Closes: #838312
+  * Add testcases for ifdown. 
+
+ -- Guus Sliepen <guus@debian.org>  Thu, 22 Sep 2016 11:53:52 +0200
+
+ifupdown (0.8.14) unstable; urgency=medium
+
+  [ Benjamin Drung ]
+  * Add InfiniBand parititon key support. Closes: #830212
+
+  [ Richard Laager ]
+  * Fix a crash when multiple interfaces are specified for no-scripts.
+    Closes: #837732
+
+  [ Bjørn Mork ]
+  * Ignore link state when bringing up hotplug interfaces at boot.
+    Closes: #814785, #834820
+
+  [ Guus Sliepen ]
+  * Add a test case for the no-scripts keyword.
+  * Flush automatically assigned addresses on ifup when accept_ra=0.
+
+ -- Guus Sliepen <guus@debian.org>  Sat, 17 Sep 2016 11:40:39 +0200
+
+ifupdown (0.8.13) unstable; urgency=medium
+
+  * Fix test suite on kFreeBSD. Closes: #826062
+  * Check the return value of chdir() and ftruncate().
+  * Clarify that scripts can be run with IFACE set to "--all".
+    Closes: #826000
+
+ -- Guus Sliepen <guus@debian.org>  Sat, 04 Jun 2016 14:08:54 +0200
+
+ifupdown (0.8.12) unstable; urgency=medium
+
+  * Add "nodad" to ip -6 addr add if dad-attempts is set to zero.
+    Closes: #824686
+  * Bump Standards-Version.
+
+ -- Guus Sliepen <guus@debian.org>  Thu, 19 May 2016 15:36:02 +0200
+
+ifupdown (0.8.11) unstable; urgency=medium
+
+  [ Wido den Hollander ]
+  * Wait properly for Link-Local Address to go through DAD.
+
+  [ Imre Deak ]
+  * Fix read_all_state when no state file exists. Closes: 819287
+
+  [ Arthur Gautier ]
+  * Implement link naming (ip link set alias)
+
+  [ Martin Pitt <martin.pitt@ubuntu.com> ]
+  * Add autopkgtest for "allow-hotplug" interfaces. Closes: #814312
+
+  [ Guus Sliepen ]
+  * Bump Standards-Version.
+
+ -- Guus Sliepen <guus@debian.org>  Thu, 21 Apr 2016 18:22:20 +0200
+
+ifupdown (0.8.10) unstable; urgency=medium
+
+  * Allow "hwaddress random" to generate a random MAC address.
+  * Allow ifdown/ifquery when physical interface is not same as logical
+    interface. 
+
+ -- Guus Sliepen <guus@debian.org>  Fri, 22 Jan 2016 16:35:23 +0100
+
+ifupdown (0.8.9) unstable; urgency=medium
+
+  * It's network-online.target, not .service.
+  * Do not run "ip link set down" on manual interfaces during "ifdown -a".
+    Closes: #809166
+  * Add the keywords "no-auto-down" and "no-scripts". Closes: #615130
+
+ -- Guus Sliepen <guus@debian.org>  Thu, 21 Jan 2016 22:02:11 +0100
+
+ifupdown (0.8.8) unstable; urgency=medium
+
+  [ Martin Pitt ]
+  * Fix ifquery crash if interface state file does not exist yet.
+    (Closes: #810779, LP: #1532722)
+  * ifup@.service: Avoid stopping on shutdown via stopping system-ifup.slice
+    (changed behaviour in systemd 228). (Closes: #761909, LP: #1492546)
+
+  [ Guus Sliepen ]
+  * Remove quotes around TimeoutStartSec parameter. Closes: #810656
+
+ -- Guus Sliepen <guus@debian.org>  Tue, 12 Jan 2016 23:50:29 +0100
+
+ifupdown (0.8.7) unstable; urgency=medium
+
+  * Impose a 5 minute timeout for starting network services.
+    Closes: #318577, #810656
+  * Give an error when trying to up a dhcp interface when no DHCP client is
+    installed. Closes: #471926, #419139
+  * Add a section in the manual about extensions provided by other packages.
+    Closes: #482405, #597274
+  * Use absolute paths to binaries called by ifup/ifdown. Closes: #365114
+  * Return an error when trying to ifup/ifdown/ifquery an unknown interface
+    (unless it is ignored due to --allow or --exclude).
+  * Ignore SIGPIPE. Closes: #311054
+  * Update the bridge example. Closes: #488315
+  * Use the onlink option when adding a gateway route. Closes: #378506
+  * Also allow the metric option for tunnels and IPv6 interfaces.
+
+ -- Guus Sliepen <guus@debian.org>  Mon, 11 Jan 2016 22:58:44 +0100
+
+ifupdown (0.8.6) unstable; urgency=medium
+
+  * Remove the Breaks: udev (<< 228-3~) to work around a bug in udev's prerm
+    script. Closes: #809658, #809743
+  * Run ip link up on manual interfaces, but ignore any errors.
+  * Use sysctl to set the IPv6-specific MTU of an interface. Closes: #809714
+
+ -- Guus Sliepen <guus@debian.org>  Tue, 05 Jan 2016 15:57:45 +0100
+
+ifupdown (0.8.5) unstable; urgency=medium
+
+  [ Stéphane Graber ]
+  * Allow setting the MTU and HWADDR on manual interfaces. Closes: #809169
+
+  [ Guus Sliepen ]
+  * Remove Depends/Replaces/Breaks for ancient packages.
+  * Move ifupdown related files from the systemd and udev packages to this
+    package. Closes: #809171
+
+ -- Guus Sliepen <guus@debian.org>  Sat, 02 Jan 2016 00:41:49 +0100
+
+ifupdown (0.8.4) unstable; urgency=medium
+
+  * Schedule networking.service After=network-online.target.
+  * Use dh-systemd.
+  * Enable parallel builds.
+
+ -- Guus Sliepen <guus@debian.org>  Sat, 26 Dec 2015 15:56:50 +0100
+
+ifupdown (0.8.3) unstable; urgency=medium
+
+  [ Guus Sliepen ]
+  * Fix FTBFS while running the testsuite, caused by conditional call to
+    settle-dad.sh. Closes: #807617
+  * Make networking.service WantedBy=network-online.target.
+
+  [ Svante Signell ]
+  * Move the test target from debian/rules to Makefile
+  * Move the shell script testbuild functions to Makefile
+  * Move test files from debian/ to tests/
+  * Prevent generated *.c-files from being removed during build
+  * main.c: Convert interfaces in the form of /dev/eth0 to .dev.eth0 to avoid
+    problems with created file names.
+  * tests/testbuild-hurd: Add more hurd-specific tests.
+
+ -- Guus Sliepen <guus@debian.org>  Mon, 21 Dec 2015 12:09:43 +0100
+
+ifupdown (0.8.2) unstable; urgency=medium
+
+  [ Martin Pitt ]
+  * Some tweaks to networking.service. Closes: #806949
+
+  [ Guus Sliepen ]
+  * Don't call udevadm settle if configuring interfaces is disabled or all
+    auto interfaces are excluded.
+  * Start ifupdown after sysctl.conf and modules have been loaded.
+  * Don't use the -D LLT option for dhclient, some DHCP servers apparently
+    don't like it. Closes: #806964
+  * Clarify configuration of dual-stack interfaces.
+
+ -- Guus Sliepen <guus@debian.org>  Fri, 04 Dec 2015 23:52:30 +0100
+
+ifupdown (0.8.1) unstable; urgency=medium
+
+  * Allow recursively calling ifup on the same physical interface when --force
+    is used. Closes: #806888
+  * Read /etc/default/networking when started from systemd. Closes: #806883
+
+ -- Guus Sliepen <guus@debian.org>  Wed, 02 Dec 2015 23:43:46 +0100
+
+ifupdown (0.8) unstable; urgency=medium
+
+  [ Guus Sliepen ]
+  * Add per-interface state files with locking.
+    - Also detects and aborts on recursion. Closes: #231197
+  * Break up main() in smaller functions.
+  * Return a non-zero exit code when (de)configuring an interface fails.
+    Closes: 773539
+  * Add blank lines around examples in interfaces(5). Closes: #791444
+  * Enable RFC 4361 DDNS support when using dhclient, as suggested by
+    Nicolas Cuissard. Closes: #799257
+  * Lock parent interface when configuration VLAN interfaces.
+  * Apply fixes for issues found by AddressSanitizer and Clang Static
+    Analyzer.
+  * Drop the versioned dependency on initscripts. Closes: #804978
+  * Check for errors when running mapping scripts. Closes: #246771
+  * Wait for an IPv6 link-local address before starting a DHCPv6 client.
+    Closes: 806673
+  * Add a systemd service file.
+
+  [ Andrew Shadura ]
+  * Implement interface inheritance using the "inherits" keyword.
+
+  [ Jérémy Bobbio ]
+  * Output methods in stable order when generating C code to make
+    builds reproducible. Closes: #762388
+
+  [ Javier Barroso ]
+  * Fix detection of curlftpfs mounts. Closes: #792896
+
+ -- Guus Sliepen <guus@debian.org>  Tue, 01 Dec 2015 23:09:54 +0100
+
+ifupdown (0.7.54) unstable; urgency=medium
+
+  [ Guus Sliepen ]
+  * Adopting this package from Andrew Shadura. Closes: #786902
+  * Converted the Mercurial repository to Git.
+  * Clean up the source code (indentation, whitespace, remove some
+    duplication, fix some warnings from cppcheck, clang, use C99, use const
+    and static where possible, remove unused/obsolete files).
+  * Prevent recursion using source and source-dir statements. Closes: #779786
+  * Create /run/network if it doesn't exist. Closes: #681872
+  * Bump Standards-Version.
+  * Use [$arch-any] statements in debian/control for architecture-dependent
+    Depends instead of conditionally calling dh_gencontrol from debian/rules.
+  * Add -Wno-unused-parameters to CFLAGS in debian/rules.
+  * Update debian/copyright and convert it to DEP-5 format.
+  * Remove debian/README and debian/TODO, which are no longer relevant.
+  * Update timestamp in manpages. Closes: #717266
+  * Do not attempt to kill udhcpc if there is no pidfile. Closes: #744167
+  * Add udev rule to allow rfkill for group netdev. Closes: #741454
+
+  [ Yuriy Vostrikov ]
+  * When using dhcpcd, pass the metric option. Closes: #784611
+
+ -- Guus Sliepen <guus@debian.org>  Mon, 08 Jun 2015 23:39:41 +0200
+
 ifupdown (0.7.53.1) unstable; urgency=medium
 
   * Update tests.
@@ -881,7 +1169,7 @@ ifupdown (0.6.4-4.9) unstable; urgency=low
        future)
      - /etc/init.d/ifupdown:
         + Creates target of /etc/network/run if the latter is a dangling
-	  symlink.  Thanks to AJT for good discussion.  (Closes: #242607)
+          symlink.  Thanks to AJT for good discussion.  (Closes: #242607)
         + Delete ifstate on stop  (Closes: #245067)
     - /etc/init.d/ifupdown-clean
         + Delete ifstate on stop  (Closes: #245067)
@@ -905,10 +1193,10 @@ ifupdown (0.6.4-4.9) unstable; urgency=low
         + Reorder content and do some other minor changes.
      - debian/postinst:
         + Create /etc/network/run symlink to /dev/shm/network/ if 
-	  it does not exist
+          it does not exist
         + Warn if "auto lo" or "iface lo" stanza absent from /e/n/i
         (Closes: #121755)
-	
+
  -- Javier Fernandez-Sanguino Pen~a <jfs@computer.org>  Wed, 28 Jul 2004 17:04:19 +0200
 
 
@@ -1112,7 +1400,7 @@ ifupdown (0.6.4-4.3) unstable; urgency=low
   * flush stream buffers before forking and after writing the
     statefile
     (Closes: Bug#151932)
-	  
+
  -- Michael Weber <michaelw@debian.org>  Thu,  4 Jul 2002 21:02:10 +0200
 
 ifupdown (0.6.4-4.2) unstable; urgency=low
