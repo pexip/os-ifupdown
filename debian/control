@@ -9,7 +9,7 @@ Standards-Version: 3.9.2
 Build-Depends: debhelper (>= 7.3.15ubuntu2), noweb
 XS-Debian-Vcs-Hg: http://anonscm.debian.org/hg/collab-maint/ifupdown/
 XS-Debian-Vcs-Browser: http://anonscm.debian.org/hg/collab-maint/ifupdown/
-XS-Pexip-Upstream: http://archive.ubuntu.com/ubuntu/ precise
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ jessie
 
 Package: ifupdown
 Architecture: any
