@@ -1,8 +1,19 @@
-#!/bin/sh
+#!/bin/sh -e
 MARK_DEV_PREFIX="/run/network/ifup."
 MARK_STATIC_NETWORK_EMITTED="/run/network/static-network-up-emitted"
 
-set -e
+if [ -e /lib/lsb/init-functions ]; then
+    . /lib/lsb/init-functions
+fi
+
+if ! init_is_upstart; then
+    exit 0
+fi
+
+# Let's ignore meta entries (ifup -a)
+if [ "$ADDRFAM" = "meta" ]; then
+    exit 0
+fi
 
 # lo emission handled by /etc/init/network-interface.conf
 if [ "$IFACE" != lo ]; then

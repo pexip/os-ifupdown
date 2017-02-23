@@ -29,15 +29,15 @@ NOT supported, comments must be on a line of their own.
 A line may be extended across multiple lines by making the last character
 a backslash.
 .P
-The file consists of zero or more "iface", "mapping", "auto", "allow-" and
-"source" stanzas. Here is an example.
+The file consists of zero or more "iface", "mapping", "auto", "allow-",
+"source" and "source-directory" stanzas. Here is an example.
 .EX
-auto lo eth0
+auto eth0
 allow-hotplug eth1
 
-iface lo inet loopback
-
 source interfaces.d/machine\-dependent
+
+source-directory interfaces.d
 
 mapping eth0 
  	script /usr/local/sbin/map\-scheme
@@ -77,6 +77,30 @@ used.
 (See
 .BR wordexp (3)
 for details.)
+.P
+Similarly, "source-directory" keyword is used to source multiple files at once,
+without specifying them individually or using shell globs. Additionally,
+when "source-directory" is used, names of the files are checked to match
+the following regular expression: \fI^[a\-zA\-Z0\-9_\-]+$\fR. In other words,
+the names must consist entirely of ASCII upper- and lower-case letters,
+ASCII digits, ASCII underscores, and ASCII minus-hyphens. In the directory path,
+shell wildcards may be used as well.
+.P
+When sourcing files or directories, if a path doesn't have a leading slash,
+it's considered relative to the directory containing the file in which the
+keyword is placed. In the example above, if the file is located at
+.IR /etc/network/interfaces\fR,
+paths to the included files are understood to be under
+.IR /etc/network\fR.
+.P
+Currently, "source-directory" isn't supported by
+.BR network-manager " and"
+.BR guessnet .
+.P
+By default, on a freshly installed Debian system, the interfaces file includes a
+line to source files in the
+.IR /etc/network/interfaces.d
+directory.
 .P
 Stanzas beginning with the word "mapping" are used to determine how a
 logical interface name is chosen for a physical interface that is to be
@@ -137,12 +161,30 @@ for details.)
 .P
 Options are usually indented for clarity (as in the example above)
 but are not required to be.
+.P
+.SH VLAN AND BRIDGE INTERFACES
+To ease the configuration of VLAN interfaces, interfaces having
+.B .
+(full stop character) in the name are configured as 802.1q tagged
+virtual LAN interface. For example, interface
+.B eth0.1
+is a virtual interface having
+.B eth0
+as physical link, with VLAN ID 1.
+.P
+For compatibility with
+.B bridge-utils
+package, if
+.B bridge_ports
+option is specified, VLAN interface configuration is
+.B not
+performed.
 .SH IFACE OPTIONS
 The following "command" options are available for every family and method.
 Each of these options can be given multiple times in a single stanza,
 in which case the commands are executed in the order in which they appear
 in the stanza.
-(You can ensure a command never fails by suffixing "|| true".)
+(You can ensure a command never fails by suffixing them with "|| true".)
 .TP
 .BI pre\-up " command"
 Run
@@ -243,6 +285,13 @@ the command search path:
 Additionally, all options given in an interface definition stanza are
 exported to the environment in upper case with "IF_" prepended and with
 hyphens converted to underscores and non\-alphanumeric characters discarded.
+.P
+When ifupdown is being called with the \fB\-\-all\fR option, before doing anything
+to interfaces, if calls all the hook scripts (\fIpre-up\fR or \fIdown\fR) with
+\fBIFACE\fR set to "\-\-all", \fBLOGICAL\fR set to the current value of \-\-allow
+parameter (or "auto" if it's not set), \fBADDRFAM\fR="meta" and \fBMETHOD\fR="none".
+After all the interfaces have been brought up or taken down, the appropriate scripts
+(\fIup\fR or \fIpost-down\fR) are executed.
 ##ADDRESSFAM##
 .SH KNOWN BUGS/LIMITATIONS
 The
@@ -271,7 +320,8 @@ This manpage was contributed by Joey Hess <joey@kitenet.net>.
 .BR ifup (8),
 .BR ip (8),
 .BR ifconfig (8),
-.BR run\-parts (8).
+.BR run\-parts (8),
+.BR resolvconf (8).
 .P
 For advice on configuring this package read the
 .B Network Configuration

@@ -35,9 +35,16 @@
 ######################################################################
 
 export VERSION := $(shell dpkg-parsechangelog|grep Version|cut -d' ' -f2|sed s/.*really//g)
+export CFLAGS := -Wall -W $(shell dpkg-buildflags --get CFLAGS) $(shell dpkg-buildflags --get CPPFLAGS) -D'IFUPDOWN_VERSION="$(VERSION)"'
+export LDFLAGS := $(shell dpkg-buildflags --get LDFLAGS)
+ifeq "$(origin CC)" "default"
+export CC := $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)-gcc
+endif
+export ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+export DESTDIR := debian/$(shell dh_listpackages)
 
-ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-  export CC = $(DEB_HOST_GNU_TYPE)-gcc
+ifeq "$(ARCH)" "kfreebsd"
+CFLAGS += -D'LO_IFACE="lo0"'
 endif
 
 %:
@@ -47,19 +54,19 @@ override_dh_auto_configure:
 	chmod a+rx makecdep.sh makenwdep.sh
 
 override_dh_installinit:
-	dh_installinit --name=network-interface-container --upstart-only --noscripts
-	dh_installinit --name=network-interface-security --upstart-only --noscripts
-	dh_installinit --name=network-interface --upstart-only --noscripts
-	dh_installinit --name=networking --upstart-only --noscripts
-	# FIXME: this rm must be dropped once netbase has been fully upstartified
-	rm debian/ifupdown/etc/init.d/networking
+	dh_installinit --name=networking --no-start
+	install -p -m 0644 debian/networking.defaults $(DESTDIR)/etc/default/networking
+	dh_installinit --name=network-interface-container --noscripts
+	dh_installinit --name=network-interface-security --noscripts
+	dh_installinit --name=network-interface --noscripts
+	dh_installinit --name=networking --noscripts
 
 override_dh_installifupdown:
 	dh_installifupdown --name=upstart
 
 override_dh_auto_clean:
 	$(MAKE) clean
-	$(MAKE) clobber
+	rm -rf tests/
 
 ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
@@ -80,8 +87,10 @@ endif
 endif
 
 override_dh_gencontrol:
-ifeq ($(DEB_HOST_ARCH_OS),linux)
-	dh_gencontrol -- -V'net:Depends=iproute (>= 20071016-1)' -V'net:Suggests=net-tools'
-else
+ifeq ($(ARCH),linux)
+	dh_gencontrol -- -V'net:Depends=iproute2|iproute (>= 20071016-1)' -V'net:Suggests=net-tools'
+else ifeq ($(ARCH),kfreebsd)
 	dh_gencontrol -- -V'net:Depends=net-tools' -V'net:Suggests='
+else ifeq ($(ARCH),hurd)
+	dh_gencontrol -- -V'net:Depends=inetutils-tools' -V'net:Suggests='
 endif
