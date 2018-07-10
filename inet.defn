@@ -6,10 +6,10 @@ method loopback
     This method may be used to define the IPv4 loopback interface.
 
   up
-    ip link set dev %iface% up if (!iface_is_lo())
+    /bin/ip link set dev %iface% up if (!iface_is_lo())
 
   down
-    ip link set dev %iface% down if (!iface_is_lo())
+    /bin/ip link set dev %iface% down if (!iface_is_lo())
 
 method static
   description
@@ -24,7 +24,7 @@ method static
     gateway address             -- Default gateway (dotted quad)
     pointopoint address         -- Address of other end point (dotted quad). \
                                    Note the spelling of "point-to".
-    hwaddress address           -- Link local address.
+    hwaddress address           -- Link local address or "random".
     mtu size                    -- MTU size
     scope                       -- Address validity scope. Possible values: \
                                    global, link, host
@@ -36,16 +36,17 @@ method static
     broadcast compute_v4_broadcast
 
   up
-    ip addr add %address%[[/%netmask%]] [[broadcast %broadcast%]] \
+    /bin/ip addr add %address%[[/%netmask%]] [[broadcast %broadcast%]] \
 	[[peer %pointopoint%]] [[scope %scope%]] dev %iface% label %iface%
-    ip link set dev %iface% [[mtu %mtu%]] [[address %hwaddress%]] up
+    /bin/ip link set dev %iface% [[mtu %mtu%]] [[address %hwaddress%]] up
 
-    [[ ip route add default via %gateway% [[metric %metric%]] dev %iface% ]]
+    [[ /bin/ip route add default via %gateway% [[metric %metric%]] dev %iface% onlink ]]
 
   down
-    [[ ip route del default via %gateway% [[metric %metric%]] dev %iface% 2>&1 1>/dev/null || true ]]
-    ip -4 addr flush dev %iface% label %iface%
-    ip link set dev %iface% down \
+    [[ /bin/ip route del default via %gateway% [[metric %metric%]] dev %iface% 2>&1 1>/dev/null || true ]]
+    /bin/ip addr del %address%[[/%netmask%]] [[broadcast %broadcast%]] \
+	[[peer %pointopoint%]] [[scope %scope%]] dev %iface% label %iface%
+    /bin/ip link set dev %iface% down \
 		if (iface_is_link())
 
 method manual
@@ -54,9 +55,21 @@ method manual
     is done by default.  Such interfaces can be configured manually by
     means of *up* and *down* commands or /etc/network/if-*.d scripts.
 
+  options
+    hwaddress address           -- Link local address or "random".
+    mtu size                    -- MTU size
+
+  conversion
+    hwaddress cleanup_hwaddress
+
   up
+    [[/bin/ip link set dev %iface% mtu %mtu%]]
+    [[/bin/ip link set dev %iface% address %hwaddress%]]
+    /bin/ip link set dev %iface% up 2>/dev/null || true
 
   down
+    /bin/ip link set dev %iface% down 2>/dev/null || true \
+        if (iface_is_link() && !do_all)
 
 method dhcp
   description
@@ -80,34 +93,33 @@ method dhcp
     hwaddress cleanup_hwaddress
 
   up
-    [[ip link set dev %iface% address %hwaddress%]]
-    dhclient -v -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+    [[/bin/ip link set dev %iface% address %hwaddress%]]
+    /sbin/dhclient -4 -v -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
 	[[-e IF_METRIC=%metric%]] \
         if (execable("/sbin/dhclient"))
-    dhclient3 -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp3/dhclient.%iface%.leases %iface% \
-	[[-e IF_METRIC=%metric%]] \
-        elsif (execable("/sbin/dhclient3"))
-    pump -i %iface% [[-h %hostname%]] [[-l %leasehours%]] \
-        elsif (execable("/sbin/pump") && mylinuxver() >= mylinux(2,1,100))
-    udhcpc -n -p /run/udhcpc.%iface%.pid -i %iface% [[-x hostname:%hostname%]] \
-        elsif (execable("/sbin/udhcpc") && mylinuxver() >= mylinux(2,2,0))
-    dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
-           [[-l %leasetime%]] %iface% \
+    /sbin/pump -i %iface% [[-h %hostname%]] [[-l %leasehours%]] \
+        elsif (execable("/sbin/pump"))
+    /sbin/udhcpc -n -p /run/udhcpc.%iface%.pid -i %iface% [[-x hostname:%hostname%]] \
+        elsif (execable("/sbin/udhcpc"))
+    /sbin/dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
+           [[-l %leasetime%]] [[-m %metric%]] %iface% \
         elsif (execable("/sbin/dhcpcd"))
+    echo 'No DHCP client software found!' >/dev/stderr; false \
+        elsif (1)
 
   down
-    dhclient -v -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+    /sbin/dhclient -4 -v -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
         if (execable("/sbin/dhclient"))
-    dhclient3 -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp3/dhclient.%iface%.leases %iface% \
-        elsif (execable("/sbin/dhclient3"))
-    pump -i %iface% -r \
-        elsif (execable("/sbin/pump") && mylinuxver() >= mylinux(2,1,100))
-    kill -USR2 $(cat /run/udhcpc.%iface%.pid); kill -TERM $(cat /run/udhcpc.%iface%.pid) \
+    /sbin/pump -i %iface% -r \
+        elsif (execable("/sbin/pump"))
+    if test -f /run/udhcpc.%iface%.pid; then kill -USR2 $(/bin/cat /run/udhcpc.%iface%.pid); kill -TERM $(/bin/cat /run/udhcpc.%iface%.pid); fi \
         elsif (execable("/sbin/udhcpc"))
-    dhcpcd -k %iface% \
+    /sbin/dhcpcd -k %iface% \
         elsif (execable("/sbin/dhcpcd"))
+    echo 'No DHCP client software found!' >/dev/stderr; false \
+        elsif (1)
 
-    ip link set dev %iface% down \
+    /bin/ip link set dev %iface% down \
 		if (iface_is_link())
 
 method bootp
@@ -122,14 +134,12 @@ method bootp
                       whatever it really is.
 
   up
-    bootpc [[--bootfile %bootfile%]] --dev %iface% [[--server %server%]] \
+    /sbin/bootpc [[--bootfile %bootfile%]] --dev %iface% [[--server %server%]] \
            [[--hwaddr %hwaddr%]] --returniffail --serverbcast
 
   down
-    ip link set dev %iface% down \
-        if (execable("/sbin/ip") && iface_is_link())
-    ifconfig %iface% down \
-        elsif (1)
+    /bin/ip link set dev %iface% down \
+        if (iface_is_link())
 
 method tunnel
   description
@@ -143,17 +153,18 @@ method tunnel
     endpoint address      -- Address of other tunnel endpoint *required*
     dstaddr address       -- Remote address (remote address inside tunnel)
     local address         -- Address of the local endpoint
+    metric metric         -- Routing metric for default gateway (integer)
     gateway address       -- Default gateway
     ttl time              -- TTL setting
     mtu size              -- MTU size
   up
-    ip tunnel add %iface% mode %mode% remote %endpoint% [[local %local%]] \
+    /bin/ip tunnel add %iface% mode %mode% remote %endpoint% [[local %local%]] \
        [[ttl %ttl%]]
-    ip link set %iface% up [[mtu %mtu%]]
-    ip addr add %address%/%netmask% dev %iface% [[peer %dstaddr%]]
-    [[ ip route add default via %gateway% ]]
+    /bin/ip link set %iface% up [[mtu %mtu%]]
+    /bin/ip addr add %address%/%netmask% dev %iface% [[peer %dstaddr%]]
+    [[ /bin/ip route add default via %gateway% [[metric %metric%]] dev %iface% onlink ]]
   down
-    ip tunnel del %iface%
+    /bin/ip tunnel del %iface%
 
 method ppp
   description
@@ -164,9 +175,9 @@ method ppp
     unit number    -- Use /number/ as the ppp unit number.
     options string -- Pass /string/ as additional options to pon.
   up
-    pon [[%provider%]] [[unit %unit%]] [[%options%]]
+    /usr/bin/pon [[%provider%]] [[unit %unit%]] [[%options%]]
   down
-    poff [[%provider%]]
+    /usr/bin/poff [[%provider%]]
 
 method wvdial
   description
@@ -200,11 +211,11 @@ method loopback
     This method may be used to define the IPv4 loopback interface.
 
   up
-    ifconfig %iface% 127.0.0.1 up \
+    /sbin/ifconfig %iface% 127.0.0.1 up \
 	if (!iface_is_lo())
 
   down
-    ifconfig %iface% down \
+    /sbin/ifconfig %iface% down \
 	if (!iface_is_lo())
 
 method static
@@ -220,22 +231,22 @@ method static
     gateway address             -- Default gateway (dotted quad)
     pointopoint address         -- Address of other end point (dotted quad). \
                                    Note the spelling of "point-to".
-    hwaddress address           -- Link local address.
+    hwaddress address           -- Link local address or "random".
     mtu size                    -- MTU size
 
   conversion
     hwaddress cleanup_hwaddress
 
   up
-    [[ ifconfig %iface% link %hwaddress%]]
-    ifconfig %iface% %address% [[netmask %netmask%]] [[broadcast %broadcast%]] \
+    [[ /sbin/ifconfig %iface% link %hwaddress%]]
+    /sbin/ifconfig %iface% %address% [[netmask %netmask%]] [[broadcast %broadcast%]] \
 	[[pointopoint %pointopoint%]] [[media %media%]] [[mtu %mtu%]] \
 	up
-    [[ route add default %gateway% ]]
+    [[ /sbin/route add default %gateway% ]]
 
   down
-    [[ route del default %gateway% 2>&1 1>/dev/null || true ]]
-    ifconfig %iface% down
+    [[ /sbin/route del default %gateway% 2>&1 1>/dev/null || true ]]
+    /sbin/ifconfig %iface% down
 
 method manual
   description
@@ -268,31 +279,30 @@ method dhcp
     hwaddress cleanup_hwaddress
 
   up
-    [[ifconfig %iface% link %hwaddress%]]
-    dhclient -v -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+    [[/sbin/ifconfig %iface% link %hwaddress%]]
+    /sbin/dhclient -4 -v -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
 	[[-e IF_METRIC=%metric%]] \
         if (execable("/sbin/dhclient"))
-    dhclient3 -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp3/dhclient.%iface%.leases %iface% \
-	[[-e IF_METRIC=%metric%]] \
-        elsif (execable("/sbin/dhclient3"))
-    udhcpc -n -p /run/udhcpc.%iface%.pid -i %iface% [[-H %hostname%]] \
+    /sbin/udhcpc -n -p /run/udhcpc.%iface%.pid -i %iface% [[-H %hostname%]] \
            [[-c %client%]] \
         elsif (execable("/sbin/udhcpc"))
-    dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
+    /sbin/dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
            [[-l %leasetime%]] %iface% \
         elsif (execable("/sbin/dhcpcd"))
+    echo 'No DHCP client software found!' >/dev/stderr; false \
+        elsif (1)
 
   down
-    dhclient -v -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+    /sbin/dhclient -4 -v -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
         if (execable("/sbin/dhclient"))
-    dhclient3 -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp3/dhclient.%iface%.leases %iface% \
-        elsif (execable("/sbin/dhclient3"))
-    kill -USR2 $(cat /run/udhcpc.%iface%.pid); kill -TERM $(cat /run/udhcpc.%iface%.pid) \
+    if test -f /run/udhcpc.%iface%.pid; then kill -USR2 $(/bin/cat /run/udhcpc.%iface%.pid); kill -TERM $(/bin/cat /run/udhcpc.%iface%.pid); fi \
         elsif (execable("/sbin/udhcpc"))
-    dhcpcd -k %iface% \
+    /sbin/dhcpcd -k %iface% \
         elsif (execable("/sbin/dhcpcd"))
+    echo 'No DHCP client software found!' >/dev/stderr; false \
+        elsif (1)
 
-    ifconfig %iface% down
+    /sbin/ifconfig %iface% down
 
 method bootp
   description
@@ -306,14 +316,11 @@ method bootp
                       whatever it really is.
 
   up
-    bootpc [[--bootfile %bootfile%]] --dev %iface% [[--server %server%]] \
+    /sbin/bootpc [[--bootfile %bootfile%]] --dev %iface% [[--server %server%]] \
            [[--hwaddr %hwaddr%]] --returniffail --serverbcast
 
   down
-    ip link set dev %iface% down \
-        if (execable("/sbin/ip") && iface_is_link())
-    ifconfig %iface% down \
-        elsif (1)
+    /sbin/ifconfig %iface% down
 
 method ppp
   description
@@ -324,9 +331,9 @@ method ppp
     unit number    -- Use /number/ as the ppp unit number.
     options string -- Pass /string/ as additional options to pon.
   up
-    pon [[%provider%]] [[unit %unit%]] [[%options%]]
+    /usr/bin/pon [[%provider%]] [[unit %unit%]] [[%options%]]
   down
-    poff [[%provider%]]
+    /usr/bin/poff [[%provider%]]
 
 method wvdial
   description
@@ -425,22 +432,26 @@ method dhcp
 
   up
     [[Warning: Option hwaddress: %hwaddress% not yet supported]]
-    dhclient -v -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases %iface% \
+    /sbin/dhclient -4 -v -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
         if (execable("/sbin/dhclient"))
-    udhcpc -n -p /run/udhcpc.%iface///.%.pid -i %iface% [[-H %hostname%]] \
+    /sbin/udhcpc -n -p /run/udhcpc.%iface///.%.pid -i %iface% [[-H %hostname%]] \
            [[-c %client%]] \
         elsif (execable("/sbin/udhcpc"))
-    dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
+    /sbin/dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
            [[-l %leasetime%]] %iface% \
         elsif (execable("/sbin/dhcpcd"))
+    echo 'No DHCP client software found!' >/dev/stderr; false \
+        elsif (1)
 
   down
-    dhclient -v -r -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases %iface% \
+    /sbin/dhclient -4 -v -r -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
         if (execable("/sbin/dhclient"))
-    kill -USR2 $(cat /run/udhcpc.%iface///.%.pid); kill -TERM $(cat /run/udhcpc.%iface///.%.pid) \
+    if test -f /run/udhcpc.%iface///.%.pid; then kill -USR2 $(/bin/cat /run/udhcpc.%iface///.%.pid); kill -TERM $(/bin/cat /run/udhcpc.%iface///.%.pid); fi \
         elsif (execable("/sbin/udhcpc"))
-    dhcpcd -k %iface% \
+    /sbin/dhcpcd -k %iface% \
         elsif (execable("/sbin/dhcpcd"))
+    echo 'No DHCP client software found!' >/dev/stderr; false \
+        elsif (1)
 
     inetutils-ifconfig --interface %iface% --down
 
@@ -460,10 +471,7 @@ method bootp
            [[--hwaddr %hwaddr%]] --returniffail --serverbcast
 
   down
-    ip link set dev %iface% down \
-        if (execable("/sbin/ip") && iface_is_link())
-    inetutils-ifconfig --interface %iface% --down \
-        elsif (1)
+    inetutils-ifconfig --interface %iface% --down
 
 method ppp
   description
@@ -474,9 +482,9 @@ method ppp
     unit number    -- Use /number/ as the ppp unit number.
     options string -- Pass /string/ as additional options to pon.
   up
-    pon [[%provider%]] [[unit %unit%]] [[%options%]]
+    /usr/bin/pon [[%provider%]] [[unit %unit%]] [[%options%]]
   down
-    poff [[%provider%]]
+    /usr/bin/poff [[%provider%]]
 
 method wvdial
   description

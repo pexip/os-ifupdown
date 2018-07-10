@@ -1,0 +1,26 @@
+>From 74c10be956dc95d7368345445a21e1b8066ab537 Mon Sep 17 00:00:00 2001
+From: Richard Laager <rlaager@wiktel.com>
+Date: Wed, 14 Sep 2016 11:51:29 +1200
+Subject: [PATCH] Fix a crash when multiple interfaces are specified for
+ no-scripts.
+
+---
+ config.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config.c b/config.c
+index c14f625..bfade0f 100644
+--- a/config.c
++++ b/config.c
+@@ -395,7 +395,7 @@ static void add_to_list(char ***list, int *count, const char *item) {
+ 		perror("realloc");
+ 		exit(1);
+ 	}
+-	*list[*count - 1] = strdup(item);
++	(*list)[*count - 1] = strdup(item);
+ 	if (!(*list)[*count - 1]) {
+ 		perror("strdup");
+ 		exit(1);
+-- 
+2.7.4
+

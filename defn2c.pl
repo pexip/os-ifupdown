@@ -54,6 +54,7 @@ sub get_architecture {
         if (!our_arch) {
                 %methods = ();
         } else {
+                print "#include \"archcommon.h\"\n";
                 print "#include \"arch${DEB_HOST_ARCH_OS}.h\"\n\n\n";
         }
         nextline;
@@ -211,7 +212,7 @@ while($line) {
 print "static method methods[] = {\n";
 %ourmethods = %methods if (our_arch());
 my $method;
-foreach $method (keys %ourmethods) {
+foreach $method (sort keys %ourmethods) {
         print <<EOF;
         {
                 "$method",
