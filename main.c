@@ -14,11 +14,16 @@
 #include <sys/types.h>
 #include <limits.h>
 #include <err.h>
+#include <ifaddrs.h>
+#include <signal.h>
 
+#include "archcommon.h"
 #include "header.h"
 
 static const char *argv0;
+bool do_interface_lock = true;
 bool no_act = false;
+bool no_act_commands = false;
 bool run_scripts = true;
 bool verbose = false;
 bool no_loopback = false;
@@ -31,6 +36,14 @@ static char *lockfile;
 static char *statefile;
 static char *tmpstatefile;
 
+volatile bool interrupted = false;
+
+static void signal_handler(int sig) {
+	interrupted = true;
+	fprintf(stderr, "Got signal %s, terminating...\n", strsignal(sig));
+	signal(sig, SIG_DFL);
+}
+
 static void usage(void) {
 	errx(1, "Use --help for help");
 }
@@ -40,7 +53,7 @@ static void version(void) {
 		"\n"
 		"Copyright (c) 1999-2009 Anthony Towns\n"
 		"              2010-2015 Andrew Shadura\n"
-		"              2015-2016 Guus Sliepen\n"
+		"              2015-2017 Guus Sliepen\n"
 		"\n"
 		"This program is free software; you can redistribute it and/or modify\n"
 		"it under the terms of the GNU General Public License as published by\n"
@@ -93,20 +106,17 @@ static void help(int (*cmds) (interface_defn *)) {
 
 static int lock_fd(int fd) {
 	struct flock lock = {
-		.l_type = F_WRLCK,
+		.l_type = no_act ? F_RDLCK : F_WRLCK,
 		.l_whence = SEEK_SET,
 		.l_start = 0,
 		.l_len = 0,
 	};
 
-	if (fcntl(fd, F_SETLKW, &lock) < 0)
-		return -1;
-
-	return 0;
+	return fcntl(fd, F_SETLKW, &lock);
 }
 
 static FILE *lock_state(void) {
-	FILE *lock_fp = fopen(lockfile, no_act ? "r" : "a+");
+	FILE *lock_fp = fopen(lockfile, no_act ? "re" : "a+e");
 
 	if (lock_fp == NULL) {
 		if (!no_act)
@@ -115,12 +125,7 @@ static FILE *lock_state(void) {
 			return NULL;
 	}
 
-	int flags = fcntl(fileno(lock_fp), F_GETFD);
-
-	if (flags < 0 || fcntl(fileno(lock_fp), F_SETFD, flags | FD_CLOEXEC) < 0)
-		err(1, "failed to set FD_CLOEXEC on lockfile %s", lockfile);
-
-	if (lock_fd(fileno(lock_fp)) < 0) {
+	if (lock_fd(fileno(lock_fp)) != 0) {
 		if (!no_act)
 			err(1, "failed to lock lockfile %s", lockfile);
 	}
@@ -145,15 +150,15 @@ static void sanitize_file_name(char *name) {
       *name = '.';
 }
 
-static void sanitize_env_name(char *name) {
+void sanitize_env_name(char *name) {
   for (; *name; name++)
     if (*name == '=')
       *name = '_';
 }
 
 static char *ifacestatefile(const char *iface) {
-	char *filename;
-	if(asprintf(&filename, "%s.%s", statefile, iface) == -1)
+	char *filename = NULL;
+	if(asprintf(&filename, "%s.%s", statefile, iface) == -1 || !filename)
 		err(1, "asprintf");
 
 	sanitize_file_name(filename + strlen(statefile) + 1);
@@ -173,7 +178,7 @@ static bool is_locked(const char *iface) {
 
 	struct flock lock = {.l_type = F_WRLCK, .l_whence = SEEK_SET};
 
-	if (fcntl(fileno(lock_fp), F_GETLK, &lock) < 0)
+	if (fcntl(fileno(lock_fp), F_GETLK, &lock) != 0)
 		lock.l_type = F_UNLCK;
 
 	fclose(lock_fp);
@@ -184,7 +189,7 @@ static bool is_locked(const char *iface) {
 static FILE *lock_interface(const char *iface, char **state) {
 	char *filename = ifacestatefile(iface);
 
-	FILE *lock_fp = fopen(filename, no_act ? "r" : "a+");
+	FILE *lock_fp = fopen(filename, no_act ? "re" : "a+e");
 
 	if (lock_fp == NULL) {
 		if (!no_act) {
@@ -195,17 +200,12 @@ static FILE *lock_interface(const char *iface, char **state) {
 		}
 	}
 
-	int flags = fcntl(fileno(lock_fp), F_GETFD);
+	struct flock lock = {.l_type = no_act ? F_RDLCK : F_WRLCK, .l_whence = SEEK_SET};
 
-	if (flags < 0 || fcntl(fileno(lock_fp), F_SETFD, flags | FD_CLOEXEC) < 0)
-		err(1, "failed to set FD_CLOEXEC on lockfile %s", filename);
-
-	struct flock lock = {.l_type = F_WRLCK, .l_whence = SEEK_SET};
-
-	if (fcntl(fileno(lock_fp), F_SETLK, &lock) < 0) {
+	if (fcntl(fileno(lock_fp), F_SETLK, &lock) != 0) {
 		if (errno == EACCES || errno == EAGAIN) {
 			warnx("waiting for lock on %s", filename);
-			if (fcntl(fileno(lock_fp), F_SETLKW, &lock) < 0) {
+			if (fcntl(fileno(lock_fp), F_SETLKW, &lock) != 0) {
 				if (!no_act)
 					err(1, "failed to lock lockfile %s", filename);
 			}
@@ -231,7 +231,7 @@ static FILE *lock_interface(const char *iface, char **state) {
 
 static void read_all_state(char ***ifaces, int *n_ifaces) {
 	FILE *lock_fp = lock_state();
-	FILE *state_fp = fopen(statefile, no_act ? "r" : "a+");
+	FILE *state_fp = fopen(statefile, no_act ? "re" : "a+e");
 
 	*n_ifaces = 0;
 	*ifaces = NULL;
@@ -241,13 +241,6 @@ static void read_all_state(char ***ifaces, int *n_ifaces) {
 			err(1, "failed to open statefile %s", statefile);
 		else
 			goto end;
-	}
-
-	if (!no_act) {
-		int flags = fcntl(fileno(state_fp), F_GETFD);
-
-		if (flags < 0 || fcntl(fileno(state_fp), F_SETFD, flags | FD_CLOEXEC) < 0)
-			err(1, "failed to set FD_CLOEXEC on statefile %s", statefile);
 	}
 
 	char buf[80];
@@ -284,7 +277,7 @@ static void update_state(const char *iface, const char *state, FILE *lock_fp) {
 	}
 
 	lock_fp = lock_state();
-	FILE *state_fp = fopen(statefile, no_act ? "r" : "a+");
+	FILE *state_fp = fopen(statefile, no_act ? "re" : "a+e");
 
 	if (state_fp == NULL) {
 		if (!no_act)
@@ -296,12 +289,7 @@ static void update_state(const char *iface, const char *state, FILE *lock_fp) {
 	if (no_act)
 		goto end;
 
-	int flags = fcntl(fileno(state_fp), F_GETFD);
-
-	if (flags < 0 || fcntl(fileno(state_fp), F_SETFD, flags | FD_CLOEXEC) < 0)
-		err(1, "failed to set FD_CLOEXEC on statefile %s", statefile);
-
-	if (lock_fd(fileno(state_fp)) < 0)
+	if (lock_fd(fileno(state_fp)) != 0)
 		err(1, "failed to lock statefile %s", statefile);
 
 	FILE *tmp_fp = fopen(tmpstatefile, "w");
@@ -346,8 +334,8 @@ static void update_state(const char *iface, const char *state, FILE *lock_fp) {
 }
 
 char *make_pidfile_name(const char *command, interface_defn *ifd) {
-	char *filename;
-	if(asprintf(&filename, "%s/%s-%s.pid", statedir, command, ifd->real_iface) == -1)
+	char *filename = NULL;
+	if(asprintf(&filename, "%s/%s-%s.pid", statedir, command, ifd->real_iface) == -1 || !filename)
 		err(1, "asprintf");
 
 	sanitize_file_name(filename + strlen(statedir) + 1);
@@ -385,6 +373,7 @@ static cmds_t determine_command(void) {
 		return iface_down;
 	} else if (strcmp(command, "ifquery") == 0) {
 		no_act = true;
+		do_interface_lock = false;
 		return iface_query;
 	} else {
 		errx(1, "this command should be called as ifup, ifdown, or ifquery");
@@ -403,6 +392,8 @@ char **no_auto_down_int = NULL;
 int no_auto_down_ints = 0;
 char **no_scripts_int = NULL;
 int no_scripts_ints = 0;
+char **rename_int = NULL;
+int rename_ints = 0;
 static char **excludeint = NULL;
 static int excludeints = 0;
 static variable *option = NULL;
@@ -444,6 +435,7 @@ static void parse_options(int *argc, char **argv[]) {
 		{"interfaces", required_argument, NULL, 'i'},
 		{"exclude", required_argument, NULL, 'X'},
 		{"no-act", no_argument, NULL, 'n'},
+		{"no-act-commands", no_argument, NULL, 10},
 		{"no-mappings", no_argument, NULL, 1},
 		{"no-scripts", no_argument, NULL, 4},
 		{"no-loopback", no_argument, NULL, 5},
@@ -464,57 +456,32 @@ static void parse_options(int *argc, char **argv[]) {
 			break;
 
 		switch (c) {
+		case 'a':
+			do_all = true;
+			break;
+
+		case 'h':
+			help(cmds);
+			break;
+
 		case 'i':
 			free(interfaces);
 			interfaces = strdup(optarg);
 			break;
 
-		case 'v':
-			verbose = true;
-			break;
+		case 'l':
+			if (!(cmds == iface_query))
+				usage();
 
-		case 'a':
-			do_all = true;
-			break;
-
-		case 3:
-			allow_class = strdup(optarg);
+			list = true;
+			cmds = iface_list;
 			break;
 
 		case 'n':
 			if ((cmds == iface_list) || (cmds == iface_query))
 				usage();
 			no_act = true;
-			break;
-
-		case 1:
-			run_mappings = false;
-			break;
-
-		case 4:
-			run_scripts = false;
-			break;
-
-		case 5:
-			no_loopback = true;
-			break;
-
-		case 2:
-			if ((cmds == iface_list) || (cmds == iface_query))
-				usage();
-			force = true;
-			break;
-
-		case 7:
-			ignore_failures = true;
-			break;
-
-		case 'X':
-			excludeints++;
-			excludeint = realloc(excludeint, excludeints * sizeof *excludeint);
-			if (excludeint == NULL)
-				err(1, "realloc");
-			excludeint[excludeints - 1] = strdup(optarg);
+			no_act_commands = true;
 			break;
 
 		case 'o':
@@ -539,20 +506,42 @@ static void parse_options(int *argc, char **argv[]) {
 				break;
 			}
 
-		case 'l':
-			if (!(cmds == iface_query))
-				usage();
-
-			list = true;
-			cmds = iface_list;
-			break;
-
-		case 'h':
-			help(cmds);
+		case 'v':
+			verbose = true;
 			break;
 
 		case 'V':
 			version();
+			break;
+
+		case 'X':
+			excludeints++;
+			excludeint = realloc(excludeint, excludeints * sizeof *excludeint);
+			if (excludeint == NULL)
+				err(1, "realloc");
+			excludeint[excludeints - 1] = strdup(optarg);
+			break;
+
+		case 1: /* --no-mappings */
+			run_mappings = false;
+			break;
+
+		case 2: /* --force */
+			if ((cmds == iface_list) || (cmds == iface_query))
+				usage();
+			force = true;
+			break;
+
+		case 3: /* --allow */
+			allow_class = strdup(optarg);
+			break;
+
+		case 4: /* --no-scripts */
+			run_scripts = false;
+			break;
+
+		case 5: /* --no-loopback */
+			no_loopback = true;
 			break;
 
 		case 6: /* --state */
@@ -562,19 +551,35 @@ static void parse_options(int *argc, char **argv[]) {
 			state_query = true;
 			break;
 
+		case 7: /* --ignore-errors */
+			ignore_failures = true;
+			break;
+
 		case 8: /* --read-environment */
 			parse_environment_variables();
 			break;
 
-		case 9:
+		case 9: /* --state-dir */
 			free(statedir);
 			free(statefile);
 			free(tmpstatefile);
 			free(lockfile);
-			asprintf(&statedir, "%s", optarg);
-			asprintf(&statefile, "%s/ifstate", optarg);
-			asprintf(&tmpstatefile, "%s/.ifstate.tmp", optarg);
-			asprintf(&lockfile, "%s/.ifstate.lock", optarg);
+			statedir = NULL;
+			statefile = NULL;
+			tmpstatefile = NULL;
+			lockfile = NULL;
+			if(asprintf(&statedir, "%s", optarg) == -1 || !statedir)
+				err(1, "asprintf");
+			if(asprintf(&statefile, "%s/ifstate", optarg) == -1 || !statefile)
+				err(1, "asprintf");
+			if(asprintf(&tmpstatefile, "%s/.ifstate.tmp", optarg) == -1 || !tmpstatefile)
+				err(1, "asprintf");
+			if(asprintf(&lockfile, "%s/.ifstate.lock", optarg) == -1 || !lockfile)
+				err(1, "asprintf");
+			break;
+
+		case 10: /* --no-act-commands */
+			no_act_commands = true;
 			break;
 
 		default:
@@ -621,10 +626,190 @@ static bool do_state(int n_target_ifaces, char *target_iface[]) {
 	return all_up;
 }
 
+/* Add string to a list if it is not a duplicate */
+static void append_to_list_nodup(char ***list, int *n, char *entry) {
+	for (int i = 0; i < *n; i++)
+		if (!strcmp((*list)[i], entry))
+			return;
+
+	(*n)++;
+	*list = realloc(*list, *n * sizeof **list);
+	(*list)[*n - 1] = entry;
+}
+
+struct ifaddrs *ifap = NULL;
+
+/* Check if an interface name is actually pattern */
+static bool is_pattern(const char *name) {
+	if(!strchr(name, '/'))
+		return false;
+
+#ifdef __gnu_hurd__
+	/* On GNU/Hurd, literal interface names start with /dev/. */
+	if(!strncmp(name, "/dev/", 5))
+		return false;
+#endif
+
+	return true;
+}
+
+/* Expand matches in the list of interfaces to act upon */
+static void expand_matches(int *argc, char ***argv) {
+	char **exp_iface = NULL;
+	int n_exp_ifaces = 0;
+
+	for (int i = 0; i < *argc; i++) {
+		// Interface names not containing a slash are taken over literally.
+		if (!is_pattern((*argv)[i])) {
+			append_to_list_nodup(&exp_iface, &n_exp_ifaces, (*argv)[i]);
+			continue;
+		}
+
+		// Format is [variable]/pattern[/options]
+		char *buf = strdupa((*argv)[i]);
+		char *variable = NULL;
+		char *pattern = NULL;
+		char *options = NULL;
+		int match_n = 0;
+
+		char *slash = strchr(buf, '/');
+		if (slash != buf)
+			variable = buf;
+		*slash++ = 0;
+		pattern = slash;
+		if (*pattern) {
+			slash = strchr(slash, '/');
+			if (slash) {
+				options = slash + 1;
+				*slash = 0;
+			}
+		}
+
+		char *logical_iface = strchr(options ? options : pattern, '=');
+		if (logical_iface)
+			*logical_iface++ = 0;
+
+		if (options) {
+			match_n = atoi(options);
+		}
+
+		int n = 0;
+
+		// Find all matching network interfaces
+		for (struct ifaddrs *ifa = ifap; ifa; ifa = ifa->ifa_next) {
+			if(ifa->ifa_flags == ~0U || !ifa->ifa_name)
+				continue;
+
+			if(variable) {
+				if(!variable_match(ifa->ifa_name, variable, pattern))
+					continue;
+			} else {
+				if(fnmatch(pattern, ifa->ifa_name, FNM_EXTMATCH))
+					continue;
+			}
+
+			n++;
+
+			// Match a single interface
+			if (match_n > 0 && match_n != n)
+				continue;
+
+			char *exp = NULL;
+			if (logical_iface) {
+				if(asprintf(&exp, "%s=%s", ifa->ifa_name, logical_iface) == -1 || !exp)
+					err(1, "asprintf");
+			} else {
+				exp = ifa->ifa_name;
+			}
+
+			append_to_list_nodup(&exp_iface, &n_exp_ifaces, exp);
+		}
+	}
+
+	*argv = exp_iface;
+	*argc = n_exp_ifaces;
+}
+
+static void get_interface_list(void) {
+	if (ifap) {
+		freeifaddrs(ifap);
+		ifap = NULL;
+	}
+
+	// Get the list of network interfaces
+	getifaddrs(&ifap);
+
+	// Mark duplicates
+	if (ifap) {
+		for (struct ifaddrs *ifa = ifap; ifa; ifa = ifa->ifa_next)
+			for (struct ifaddrs *ifb = ifa->ifa_next; ifb; ifb = ifb->ifa_next)
+				if(!strcmp(ifa->ifa_name, ifb->ifa_name))
+					ifa->ifa_flags = ~0U;
+	}
+}
+
+/* Process interfaces that need to be renamed */
+static void do_rename(void) {
+	if (!rename_ints || !ifap)
+		return;
+
+	int renamed_ints = 0;
+
+	for (int i = 0; i < rename_ints; i++) {
+		char *logical = strchr(rename_int[i], '=');
+		if (!logical)
+			errx(1, "missing target name for interface %s", rename_int[i]);
+		*logical++ = 0;
+		if (!strcmp(rename_int[i], logical)) {
+			rename_int[i] = NULL;
+			continue;
+		}
+
+		bool found = false;
+
+		for (struct ifaddrs *ifa = ifap; ifa; ifa = ifa->ifa_next) {
+			if (ifa->ifa_flags == ~0U || !ifa->ifa_name)
+				continue;
+			if (!strcmp(ifa->ifa_name, rename_int[i])) {
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) {
+			rename_int[i] = NULL;
+			continue;
+		}
+
+		struct variable option = {
+			.name = "newname",
+			.value = logical,
+		};
+
+		struct interface_defn ifd = {
+			.real_iface = rename_int[i],
+			.logical_iface = logical,
+			.n_options = 1,
+			.option = &option,
+		};
+
+		if (!addr_link.method[0].rename(&ifd, doit)) {
+			errx(1, "unable to rename %s to %s", rename_int[i], logical);
+		}
+
+		logical[-1] = '=';
+		renamed_ints++;
+	}
+
+	if (renamed_ints)
+		get_interface_list();
+}
+
+
 /* Check non-option arguments and build a list of interfaces to act upon */
 static void select_interfaces(int argc, char *argv[]) {
-	if (argc > 0 && (do_all || list)) {
-		warnx("either use the --all/--list options, or specify interface(s), but not both");
+	if (argc > 0 && (do_all)) {
+		warnx("either use the --all option, or specify interface(s), but not both");
 		usage();
 	}
 
@@ -641,12 +826,21 @@ static void select_interfaces(int argc, char *argv[]) {
 	if (!defn)
 		errx(1, "couldn't read interfaces file \"%s\"", interfaces);
 
-	if (do_all || list) {
+	get_interface_list();
+
+	if (rename_ints)
+		expand_matches(&rename_ints, &rename_int);
+
+	if (cmds == iface_up)
+		do_rename();
+
+	if (do_all || (list && !argc)) {
 		if ((cmds == iface_list) || (cmds == iface_up)) {
 			allowup_defn *autos = find_allowup(defn, allow_class ? allow_class : "auto");
 
 			target_iface = autos ? autos->interfaces : NULL;
 			n_target_ifaces = autos ? autos->n_interfaces : 0;
+			expand_matches(&n_target_ifaces, &target_iface);
 		} else if (cmds == iface_down) {
 			read_all_state(&target_iface, &n_target_ifaces);
 		} else {
@@ -656,6 +850,44 @@ static void select_interfaces(int argc, char *argv[]) {
 	} else {
 		target_iface = argv;
 		n_target_ifaces = argc;
+		expand_matches(&n_target_ifaces, &target_iface);
+	}
+
+	/* Remap interfaces that would have been renamed */
+	for (int j = 0; j < rename_ints; j++) {
+		if (!rename_int[j])
+			continue;
+		int rename_len = strcspn(rename_int[j], "=");
+		for (int i = 0; i < n_target_ifaces; i++) {
+			int iface_len = strcspn(target_iface[i], "=");
+			if (iface_len != rename_len || strncmp(target_iface[i], rename_int[j], rename_len))
+				continue;
+			char *newtarget = NULL;
+			if (target_iface[i][iface_len]) {
+				if(asprintf(&newtarget, "%s=%s", rename_int[j] + rename_len + 1, target_iface[i] + iface_len + 1))
+					err(1, "asprintf");
+			} else {
+				newtarget = strdup(rename_int[j] + rename_len + 1);
+			}
+			target_iface[i] = newtarget;
+		}
+	}
+
+	/* Bring up VLAN interfaces in the same allow class */
+	if (n_target_ifaces && cmds == iface_up && allow_class) {
+		allowup_defn *allowups = find_allowup(defn, allow_class);
+		if (allowups) {
+			int n = n_target_ifaces;
+			for (int i = 0; i < n; i++) {
+				if (strchr(target_iface[i], '.'))
+					continue;
+				int len = strlen(target_iface[i]);
+				for (int j = 0; j < allowups->n_interfaces; j++) {
+					if (!strncmp(target_iface[i], allowups->interfaces[j], len) && allowups->interfaces[j][len] == '.')
+						append_to_list_nodup(&target_iface, &n_target_ifaces, allowups->interfaces[j]);
+				}
+			}
+		}
 	}
 }
 
@@ -721,12 +953,21 @@ static bool ignore_interface(const char *iface) {
 
 		bool found = false;
 
-		for (int i = 0; i < allowup->n_interfaces; i++) {
-			if (strcmp(allowup->interfaces[i], iface) == 0) {
+		char **interfaces = allowup->interfaces;
+		int n_interfaces = allowup->n_interfaces;
+		expand_matches(&n_interfaces, &interfaces);
+
+		for (int i = 0; i < n_interfaces; i++) {
+			char *logical = strchr(interfaces[i], '=');
+			if (logical)
+				*logical++ = 0;
+			if (strcmp(interfaces[i], iface) == 0) {
 				found = true;
 				break;
 			}
 		}
+
+		free(interfaces);
 
 		if (!found)
 			return true;
@@ -746,7 +987,11 @@ static bool ignore_interface(const char *iface) {
 }
 
 
-static bool do_interface(const char *target_iface) {
+static bool do_interface(const char *target_iface, char *parent_state) {
+	/* Exit early if we were interrupted */
+	if (interrupted)
+		return false;
+
 	/* Split into physical and logical interface */
 
 	char iface[80], liface[80];
@@ -800,38 +1045,70 @@ static bool do_interface(const char *target_iface) {
 	}
 
 	if (!found) {
-		warnx("unknown interface %s", liface);
-		return false;
+		if (!parent_state) {
+			warnx("unknown interface %s", liface);
+			return false;
+		} else {
+			return true;
+		}
 	}
-
 
 	/* Bail out if we are being called recursively on the same interface */
 
-	char envname[160];
-	snprintf(envname, sizeof envname, "IFUPDOWN_%s", iface);
-	sanitize_env_name(envname + 9);
-	char *envval = getenv(envname);
-	if(envval && is_locked(iface)) {
-		warnx("recursion detected for interface %s in %s phase", iface, envval);
-		return false;
+	if (!parent_state && do_interface_lock) {
+		char envname[160];
+		snprintf(envname, sizeof envname, "IFUPDOWN_%s", iface);
+		sanitize_env_name(envname + 9);
+		char *envval = getenv(envname);
+		if(envval && is_locked(iface)) {
+			warnx("recursion detected for interface %s in %s phase", iface, envval);
+			return false;
+		}
 	}
 
-	/* Are we configuring a VLAN interface? If so, lock the parent interface as well. */
+	/* Are we configuring a VLAN interface? If so, lock the parent interface first. */
 
 	char piface[80];
 	FILE *plock = NULL;
 	strncpy(piface, iface, sizeof piface);
-	if ((pch = strchr(piface, '.'))) {
+	pch = strchr(piface, '.');
+
+	if (pch && !parent_state && do_interface_lock) {
 		*pch = '\0';
+		char envname[160];
 		snprintf(envname, sizeof envname, "IFUPDOWN_%s", piface);
 		sanitize_env_name(envname + 9);
 		char *envval = getenv(envname);
-		if(envval && is_locked(piface)) {
-			warnx("recursion detected for parent interface %s in %s phase", piface, envval);
-			return false;
+
+		bool needs_parent_lock = true;
+
+		/* Allow the parent interface to recursively bring up/down VLANs */
+		if (envval) {
+			if (cmds == iface_up && !strcmp(envval, "post-up"))
+				needs_parent_lock = false;
+			else if (cmds == iface_down && !strcmp(envval, "pre-down"))
+				needs_parent_lock = false;
 		}
 
-		plock = lock_interface(piface, NULL);
+		if (needs_parent_lock) {
+			if(envval && is_locked(piface)) {
+				warnx("recursion detected for parent interface %s in %s phase", piface, envval);
+				return false;
+			}
+
+			char *parent_state = NULL;
+			plock = lock_interface(piface, &parent_state);
+
+			if (cmds == iface_up) {
+				/* And ensure it's up. */
+				if (!do_interface(piface, parent_state ? parent_state : "")) {
+					warnx("could not bring up parent interface %s", piface);
+					return false;
+				}
+			}
+
+			free(parent_state);
+		}
 	}
 
 	/* Start by locking this interface */
@@ -840,14 +1117,30 @@ static bool do_interface(const char *target_iface) {
 	FILE *lock = NULL;
 	char *current_state = NULL;
 
-	lock = lock_interface(iface, &current_state);
+	if ((!parent_state || !*parent_state) && do_interface_lock)
+		lock = lock_interface(iface, &current_state);
+	else
+		current_state = parent_state;
+
+	/* Are we the parent of one or more VLAN interfaces? */
+
+	if (!pch && !parent_state && cmds == iface_down) {
+		size_t namelen = strlen(iface);
+
+		for (struct interface_defn *ifd = defn->ifaces; ifd; ifd = ifd->next) {
+			if (strncmp(iface, ifd->logical_iface, namelen) || ifd->logical_iface[namelen] != '.')
+				continue;
+
+			do_interface(ifd->logical_iface, "");
+		}
+	}
 
 	/* If we are not forcing the command, then exit with success if it is a no-op */
 
 	if (!force) {
 		if (cmds == iface_up) {
 			if (current_state != NULL) {
-				if (!do_all)
+				if (!parent_state && !do_all)
 					warnx("interface %s already configured", iface);
 
 				success = true;
@@ -855,7 +1148,7 @@ static bool do_interface(const char *target_iface) {
 			}
 		} else if (cmds == iface_down) {
 			if (current_state == NULL) {
-				if (!do_all)
+				if (!parent_state && !do_all)
 					warnx("interface %s not configured", iface);
 
 				success = true;
@@ -1176,7 +1469,7 @@ int main(int argc, char *argv[]) {
 		interfaces = strdup("/etc/network/interfaces");
 
 	if (!interfaces || !statedir || !statefile || !tmpstatefile || !lockfile)
-		err(1, "asprintf");
+		err(1, "strdup");
 
 	mkdir(statedir, 0755);
 
@@ -1187,13 +1480,17 @@ int main(int argc, char *argv[]) {
 		goto finish;
 	}
 
+	signal(SIGINT, signal_handler);
+	signal(SIGTERM, signal_handler);
+	signal(SIGHUP, signal_handler);
+
 	select_interfaces(argc, argv);
 
 	if (do_all)
 		do_pre_all();
 
 	for (int i = 0; i < n_target_ifaces; i++)
-		success &= do_interface(target_iface[i]);
+		success &= do_interface(target_iface[i], NULL);
 
 	if (do_all)
 		do_post_all();

@@ -1,3 +1,32 @@
+ifupdown (0.8.34) unstable; urgency=medium
+
+  VLAN interfaces that are marked allow-hotplug are now brought up
+  automatically when the parent interface is hotplugged.
+
+ -- Guus Sliepen <guus@debian.org>  Fri, 25 May 2018 22:33:22 +0200
+
+ifupdown (0.8.32) unstable; urgency=medium
+
+  Since version 0.8, ifupdown allows concurrent calls of ifup and ifdown.
+  While calls for the same interface will be serialized, calls for different
+  interfaces can run in parallel. This is especially important during boot
+  time, when the chance is high that multiple interfaces are being brought up
+  concurrently. Ensure that any if-pre/post-up/down.d scripts you use are safe
+  to run concurrently, as well as any pre/post-up/down commands in
+  /etc/network/interfaces.
+
+ -- Guus Sliepen <guus@debian.org>  Wed, 04 Apr 2018 23:20:51 +0200
+
+ifupdown (0.8.20) unstable; urgency=medium
+
+  Ifupdown now supports pattern matching for interfaces. This will help
+  writing /etc/network/interfaces for systems with changing interface names,
+  or to simplify configuration for a large number of interfaces. The details
+  are in the interfaces(5) manual page, and examples are provided in
+  /usr/share/doc/ifupdown/examples/pattern-matching.
+
+ -- Guus Sliepen <guus@debian.org>  Tue, 10 Jan 2017 17:20:09 +0100
+
 ifupdown (0.8.17) unstable; urgency=medium
 
   Ifupdown now also configures VLANs for bridge interfaces. (Previously, the

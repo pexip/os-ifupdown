@@ -80,13 +80,20 @@ static void set_environ(interface_defn *iface, char *mode, char *phase) {
 		if(strncmp(*envp, "IFUPDOWN_", 9) == 0)
 			*ppch++ = strdup(*envp);
 
+	/* Do we have a parent interface? */
 	char piface[80];
 	strncpy(piface, iface->real_iface, sizeof piface);
 	piface[sizeof piface - 1] = '\0';
 	char *pch = strchr(piface, '.');
 	if (pch) {
+		/* If so, declare that we have locked it, but don't overwrite an existing environment variable. */
 		*pch = '\0';
-		*ppch++ = setlocalenv_nomangle("IFUPDOWN_%s=%s", piface, "parent-lock");
+		char envname[160];
+		snprintf(envname, sizeof envname, "IFUPDOWN_%s", piface);
+		sanitize_env_name(envname + 9);
+
+		if (!getenv(envname))
+			*ppch++ = setlocalenv_nomangle("IFUPDOWN_%s=%s", piface, "parent-lock");
 	}
 
 	*ppch++ = setlocalenv_nomangle("IFUPDOWN_%s=%s", iface->real_iface, phase);
@@ -104,6 +111,9 @@ static void set_environ(interface_defn *iface, char *mode, char *phase) {
 }
 
 int doit(const char *str) {
+	if (interrupted)
+		return 0;
+
 	assert(str);
 	bool ignore_status = false;
 
@@ -115,7 +125,7 @@ int doit(const char *str) {
 	if (verbose || no_act)
 		fprintf(stderr, "%s\n", str);
 
-	if (!no_act) {
+	if (!no_act_commands) {
 		pid_t child;
 		int status;
 
@@ -124,7 +134,7 @@ int doit(const char *str) {
 
 		switch (child = fork()) {
 		case -1:	/* failure */
-			return 0;
+			err(1, "fork");
 
 		case 0:	/* child */
 			execle("/bin/sh", "/bin/sh", "-c", str, NULL, localenv);
@@ -149,7 +159,7 @@ int doit(const char *str) {
 static int execute_options(interface_defn *ifd, execfn *exec, char *opt) {
 	for (int i = 0; i < ifd->n_options; i++)
 		if (strcmp(ifd->option[i].name, opt) == 0)
-			if (!(*exec) (ifd->option[i].value))
+			if (interrupted || !(*exec) (ifd->option[i].value))
 				if (!ignore_failures)
 					return 0;
 
@@ -157,6 +167,9 @@ static int execute_options(interface_defn *ifd, execfn *exec, char *opt) {
 }
 
 static int execute_scripts(interface_defn *ifd, execfn *exec, char *opt) {
+	if (interrupted)
+		return 1;
+
 	if (!run_scripts)
 		return 1;
 
@@ -285,7 +298,7 @@ int iface_query(interface_defn *iface) {
 	for (int i = 0; i < iface->n_options; i++)
 		printf("%s: %s\n", iface->option[i].name, iface->option[i].value);
 
-	return 0;
+	return 1;
 }
 
 static void addstr(char **buf, size_t *len, size_t *pos, const char *str, size_t strlen) {

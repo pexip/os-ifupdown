@@ -3,4 +3,9 @@ exit code: 0
 ====stderr====
 ifdown: couldn't open interfaces file "tests/linux/testcase.13": No such file or directory
 /bin/run-parts --verbose /etc/network/if-down.d
+ifdown: configuring interface lo=lo (inet)
+/bin/run-parts --verbose /etc/network/if-down.d
+/bin/run-parts --verbose /etc/network/if-post-down.d
+/sbin/ip link set down dev lo 2>/dev/null
+
 /bin/run-parts --verbose /etc/network/if-post-down.d
