@@ -7,7 +7,7 @@ Standards-Version: 3.9.8
 Build-Depends: debhelper (>= 9.20120410~), dh-systemd
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/ifupdown.git
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/ifupdown.git
-XS-Pexip-Upstream: http://ftp.debian.org/debian/ stretch
+XS-Pexip-Upstream: http://ftp.debian.org/debian/ buster
 
 Package: ifupdown
 Architecture: any
