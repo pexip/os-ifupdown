@@ -1,6 +1,6 @@
-VERSION ?= 0.7
+VERSION ?= 0.8
 CFLAGS ?= -Wall -W -Wno-unused-parameter -g -O2
-ARCH ?= linux
+ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 
 BASEDIR ?= $(DESTDIR)
 
@@ -18,7 +18,7 @@ DEFNFILES += meta.defn link.defn
 
 all : ifup ifdown ifquery ifup.8 ifdown.8 ifquery.8 interfaces.5
 
-.PHONY : all clean distclean
+.PHONY : all install clean distclean check
 .SECONDARY: link.c ipx.c can.c meta.c inet6.c inet.c
 
 install :
@@ -28,13 +28,14 @@ install :
 	ln -s /sbin/ifup ${BASEDIR}/sbin/ifquery
 	install -D -m 0755 settle-dad.sh $(BASEDIR)/lib/ifupdown/settle-dad.sh
 	install -D -m 0755 wait-for-ll6.sh $(BASEDIR)/lib/ifupdown/wait-for-ll6.sh
+	install -D -m 0755 wait-online.sh $(BASEDIR)/lib/ifupdown/wait-online.sh
 
 clean :
 	rm -f *.o $(patsubst %.defn,%.c,$(DEFNFILES)) *~
 	rm -f $(patsubst %.defn,%.man,$(DEFNFILES))
 	rm -f ifup ifdown ifquery interfaces.5 ifdown.8 ifquery.8
 	-rm -f ./tests/*/*-res*
-	-rm -r ./tests/*/state.*
+	-rm -rf ./tests/*/state.*
 
 distclean : clean
 
@@ -47,7 +48,6 @@ ifdown: ifup
 ifquery: ifup
 	ln -sf ifup ifquery
 
-ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 check: ifup ifdown
 	@echo running ./tests/testbuild-$(ARCH)
 	@if ! exec ./tests/testbuild-$(ARCH); then \

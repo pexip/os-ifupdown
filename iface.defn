@@ -1,25 +1,41 @@
-address_family inet
 architecture linux
 
-method loopback
-  description
-    This method may be used to define the IPv4 loopback interface.
-
+method address
   up
-    /sbin/ip link set dev %iface% up if (!iface_is_lo())
-
+    /sbin/ip addr add dev %iface% %value%
   down
-    /sbin/ip link set dev %iface% down if (!iface_is_lo())
+    /sbin/ip addr del dev %iface% %value%
 
-method static
-  description
-    This method may be used to define Ethernet interfaces with statically
-    allocated IPv4 addresses.
-      
+method route
+  up
+    /sbin/ip route add dev %iface% %value%
+  down
+    /sbin/ip route del dev %iface% %value%
+
+method gateway
+  up
+    /sbin/ip route add dev %iface% default via %value%
+  down
+    /sbin/ip route del dev %iface% default via %value%
+
+method rule
+  up
+    /sbin/ip rule add %value%
+  down
+    /sbin/ip rule del %value%
+
+method hwaddress
+  pre-up
+    /sbin/ip link set %iface% address %value%
+
+method mtu
+  pre-up
+    /sbin/ip link set %iface% address %value%
+
   options
     address address             -- Address (dotted quad/netmask) *required*
-    netmask mask                -- Netmask (dotted quad or number of bits) *deprecated*
-    broadcast broadcast_address -- Broadcast address (dotted quad, + or -) *deprecated* [+]
+    netmask mask                -- Netmask (dotted quad or CIDR)
+    broadcast broadcast_address -- Broadcast address (dotted quad, + or -) [+]
     metric metric               -- Routing metric for default gateway (integer)
     gateway address             -- Default gateway (dotted quad)
     pointopoint address         -- Address of other end point (dotted quad). \
@@ -46,8 +62,6 @@ method static
     [[ /sbin/ip route del default via %gateway% [[metric %metric%]] dev %iface% 2>&1 1>/dev/null || true ]]
     /sbin/ip addr del %address%[[/%netmask%]] [[broadcast %broadcast%]] \
 	[[peer %pointopoint%]] [[scope %scope%]] dev %iface% label %iface%
-    /sbin/ip -4 addr flush dev %iface% \
-    		if (iface_is_link())
     /sbin/ip link set dev %iface% down \
 		if (iface_is_link())
 
@@ -70,8 +84,6 @@ method manual
     /sbin/ip link set dev %iface% up 2>/dev/null || true
 
   down
-    /sbin/ip -4 addr flush dev %iface% 2>/dev/null || true \
-    	if (iface_is_link())
     /sbin/ip link set dev %iface% down 2>/dev/null || true \
         if (iface_is_link() && !do_all)
 
@@ -98,7 +110,7 @@ method dhcp
 
   up
     [[/sbin/ip link set dev %iface% address %hwaddress%]]
-    /sbin/dhclient -4 -v -i -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    /sbin/dhclient -4 -v -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
 	[[-e IF_METRIC=%metric%]] \
         if (execable("/sbin/dhclient"))
     /sbin/pump -i %iface% [[-h %hostname%]] [[-l %leasehours%]] \
@@ -108,11 +120,11 @@ method dhcp
     /sbin/dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
            [[-l %leasetime%]] [[-m %metric%]] %iface% \
         elsif (execable("/sbin/dhcpcd"))
-    echo 'No DHCP client software found!' >&2; false \
+    echo 'No DHCP client software found!' >/dev/stderr; false \
         elsif (1)
 
   down
-    /sbin/dhclient -4 -v -i -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    /sbin/dhclient -4 -v -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
         if (execable("/sbin/dhclient"))
     /sbin/pump -i %iface% -r \
         elsif (execable("/sbin/pump"))
@@ -120,7 +132,7 @@ method dhcp
         elsif (execable("/sbin/udhcpc"))
     /sbin/dhcpcd -k %iface% \
         elsif (execable("/sbin/dhcpcd"))
-    echo 'No DHCP client software found!' >&2; false \
+    echo 'No DHCP client software found!' >/dev/stderr; false \
         elsif (1)
 
     /sbin/ip link set dev %iface% down \
@@ -229,8 +241,8 @@ method static
       
   options
     address address             -- Address (dotted quad/netmask) *required*
-    netmask mask                -- Netmask (dotted quad or number of bits) *deprecated*
-    broadcast broadcast_address -- Broadcast address (dotted quad) *deprecated*
+    netmask mask                -- Netmask (dotted quad or CIDR)
+    broadcast broadcast_address -- Broadcast address (dotted quad)
     metric metric               -- Routing metric for default gateway (integer)
     gateway address             -- Default gateway (dotted quad)
     pointopoint address         -- Address of other end point (dotted quad). \
@@ -284,7 +296,7 @@ method dhcp
 
   up
     [[/sbin/ifconfig %iface% link %hwaddress%]]
-    /sbin/dhclient -4 -v -i -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    /sbin/dhclient -4 -v -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
 	[[-e IF_METRIC=%metric%]] \
         if (execable("/sbin/dhclient"))
     /sbin/udhcpc -n -p /run/udhcpc.%iface%.pid -i %iface% [[-H %hostname%]] \
@@ -293,17 +305,17 @@ method dhcp
     /sbin/dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
            [[-l %leasetime%]] %iface% \
         elsif (execable("/sbin/dhcpcd"))
-    echo 'No DHCP client software found!' >&2; false \
+    echo 'No DHCP client software found!' >/dev/stderr; false \
         elsif (1)
 
   down
-    /sbin/dhclient -4 -v -i -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    /sbin/dhclient -4 -v -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
         if (execable("/sbin/dhclient"))
     if test -f /run/udhcpc.%iface%.pid; then kill -USR2 $(/bin/cat /run/udhcpc.%iface%.pid); kill -TERM $(/bin/cat /run/udhcpc.%iface%.pid); fi \
         elsif (execable("/sbin/udhcpc"))
     /sbin/dhcpcd -k %iface% \
         elsif (execable("/sbin/dhcpcd"))
-    echo 'No DHCP client software found!' >&2; false \
+    echo 'No DHCP client software found!' >/dev/stderr; false \
         elsif (1)
 
     /sbin/ifconfig %iface% down
@@ -384,8 +396,8 @@ method static
       
   options
     address address             -- Address (dotted quad/netmask) *required*
-    netmask mask                -- Netmask (dotted quad or number of bits) *deprecated*
-    broadcast broadcast_address -- Broadcast address (dotted quad) *deprecated*
+    netmask mask                -- Netmask (dotted quad or CIDR)
+    broadcast broadcast_address -- Broadcast address (dotted quad)
     metric metric               -- Routing metric for default gateway (integer)
     gateway address             -- Default gateway (dotted quad)
     pointopoint address         -- Address of other end point (dotted quad). \
@@ -436,7 +448,7 @@ method dhcp
 
   up
     [[Warning: Option hwaddress: %hwaddress% not yet supported]]
-    /sbin/dhclient -4 -v -i -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
+    /sbin/dhclient -4 -v -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
         if (execable("/sbin/dhclient"))
     /sbin/udhcpc -n -p /run/udhcpc.%iface///.%.pid -i %iface% [[-H %hostname%]] \
            [[-c %client%]] \
@@ -444,17 +456,17 @@ method dhcp
     /sbin/dhcpcd [[-h %hostname%]] [[-i %vendor%]] [[-I %client%]] \
            [[-l %leasetime%]] %iface% \
         elsif (execable("/sbin/dhcpcd"))
-    echo 'No DHCP client software found!' >&2; false \
+    echo 'No DHCP client software found!' >/dev/stderr; false \
         elsif (1)
 
   down
-    /sbin/dhclient -4 -v -i -r -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
+    /sbin/dhclient -4 -v -r -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
         if (execable("/sbin/dhclient"))
     if test -f /run/udhcpc.%iface///.%.pid; then kill -USR2 $(/bin/cat /run/udhcpc.%iface///.%.pid); kill -TERM $(/bin/cat /run/udhcpc.%iface///.%.pid); fi \
         elsif (execable("/sbin/udhcpc"))
     /sbin/dhcpcd -k %iface% \
         elsif (execable("/sbin/dhcpcd"))
-    echo 'No DHCP client software found!' >&2; false \
+    echo 'No DHCP client software found!' >/dev/stderr; false \
         elsif (1)
 
     inetutils-ifconfig --interface %iface% --down

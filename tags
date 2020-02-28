@@ -1,0 +1,338 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+EUNBALBRACK	header.h	95;"	d
+EUNBALPER	header.h	98;"	d
+EUNDEFVAR	header.h	96;"	d
+HEADER_H	header.h	2;"	d
+INHERITS	config.c	/^	INHERITS$/;"	e	enum:keyword	file:
+LO_IFACE	header.h	104;"	d
+MAX_OPT_DEPTH	header.h	94;"	d
+MAX_VARNAME	header.h	97;"	d
+NIL	config.c	/^	NIL = -1,$/;"	e	enum:keyword	file:
+RUN_DIR	header.h	100;"	d
+_6to4_conv	inet6.c	/^static conversion _6to4_conv[] = {$/;"	v	file:
+_6to4_default	inet6.c	/^static option_default _6to4_default[] = {$/;"	v	file:
+_6to4_down	inet6.c	/^static int _6to4_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_6to4_rename	inet6.c	/^static int _6to4_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_6to4_up	inet6.c	/^static int _6to4_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_GNU_SOURCE	archhurd.c	1;"	d	file:
+_GNU_SOURCE	archkfreebsd.c	1;"	d	file:
+_GNU_SOURCE	archlinux.c	1;"	d	file:
+_GNU_SOURCE	execute.c	1;"	d	file:
+_GNU_SOURCE	main.c	1;"	d	file:
+_auto_conv	inet6.c	/^static conversion _auto_conv[] = {$/;"	v	file:
+_auto_default	inet6.c	/^static option_default _auto_default[] = {$/;"	v	file:
+_auto_down	inet6.c	/^static int _auto_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_auto_rename	inet6.c	/^static int _auto_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_auto_up	inet6.c	/^static int _auto_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_bootp_conv	inet.c	/^static conversion _bootp_conv[] = {$/;"	v	file:
+_bootp_default	inet.c	/^static option_default _bootp_default[] = {$/;"	v	file:
+_bootp_down	inet.c	/^static int _bootp_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_bootp_rename	inet.c	/^static int _bootp_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_bootp_up	inet.c	/^static int _bootp_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_dhcp_conv	inet.c	/^static conversion _dhcp_conv[] = {$/;"	v	file:
+_dhcp_conv	inet6.c	/^static conversion _dhcp_conv[] = {$/;"	v	file:
+_dhcp_default	inet.c	/^static option_default _dhcp_default[] = {$/;"	v	file:
+_dhcp_default	inet6.c	/^static option_default _dhcp_default[] = {$/;"	v	file:
+_dhcp_down	inet.c	/^static int _dhcp_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_dhcp_down	inet6.c	/^static int _dhcp_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_dhcp_rename	inet.c	/^static int _dhcp_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_dhcp_rename	inet6.c	/^static int _dhcp_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_dhcp_up	inet.c	/^static int _dhcp_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_dhcp_up	inet6.c	/^static int _dhcp_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_dynamic_conv	ipx.c	/^static conversion _dynamic_conv[] = {$/;"	v	file:
+_dynamic_default	ipx.c	/^static option_default _dynamic_default[] = {$/;"	v	file:
+_dynamic_down	ipx.c	/^static int _dynamic_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_dynamic_rename	ipx.c	/^static int _dynamic_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_dynamic_up	ipx.c	/^static int _dynamic_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_iface_has	archcommon.c	/^bool _iface_has(const char *iface, const char *delims) {$/;"	f
+_ipv4ll_conv	inet.c	/^static conversion _ipv4ll_conv[] = {$/;"	v	file:
+_ipv4ll_default	inet.c	/^static option_default _ipv4ll_default[] = {$/;"	v	file:
+_ipv4ll_down	inet.c	/^static int _ipv4ll_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_ipv4ll_rename	inet.c	/^static int _ipv4ll_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_ipv4ll_up	inet.c	/^static int _ipv4ll_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_loopback_conv	inet.c	/^static conversion _loopback_conv[] = {$/;"	v	file:
+_loopback_conv	inet6.c	/^static conversion _loopback_conv[] = {$/;"	v	file:
+_loopback_default	inet.c	/^static option_default _loopback_default[] = {$/;"	v	file:
+_loopback_default	inet6.c	/^static option_default _loopback_default[] = {$/;"	v	file:
+_loopback_down	inet.c	/^static int _loopback_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_loopback_down	inet6.c	/^static int _loopback_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_loopback_rename	inet.c	/^static int _loopback_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_loopback_rename	inet6.c	/^static int _loopback_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_loopback_up	inet.c	/^static int _loopback_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_loopback_up	inet6.c	/^static int _loopback_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_manual_conv	inet.c	/^static conversion _manual_conv[] = {$/;"	v	file:
+_manual_conv	inet6.c	/^static conversion _manual_conv[] = {$/;"	v	file:
+_manual_default	inet.c	/^static option_default _manual_default[] = {$/;"	v	file:
+_manual_default	inet6.c	/^static option_default _manual_default[] = {$/;"	v	file:
+_manual_down	inet.c	/^static int _manual_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_manual_down	inet6.c	/^static int _manual_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_manual_rename	inet.c	/^static int _manual_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_manual_rename	inet6.c	/^static int _manual_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_manual_up	inet.c	/^static int _manual_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_manual_up	inet6.c	/^static int _manual_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_none_conv	link.c	/^static conversion _none_conv[] = {$/;"	v	file:
+_none_conv	meta.c	/^static conversion _none_conv[] = {$/;"	v	file:
+_none_default	link.c	/^static option_default _none_default[] = {$/;"	v	file:
+_none_default	meta.c	/^static option_default _none_default[] = {$/;"	v	file:
+_none_down	link.c	/^static int _none_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_none_down	meta.c	/^static int _none_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_none_rename	link.c	/^static int _none_rename(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_none_rename	meta.c	/^static int _none_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_none_up	link.c	/^static int _none_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_none_up	meta.c	/^static int _none_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_ppp_conv	inet.c	/^static conversion _ppp_conv[] = {$/;"	v	file:
+_ppp_default	inet.c	/^static option_default _ppp_default[] = {$/;"	v	file:
+_ppp_down	inet.c	/^static int _ppp_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_ppp_rename	inet.c	/^static int _ppp_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_ppp_up	inet.c	/^static int _ppp_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_conv	can.c	/^static conversion _static_conv[] = {$/;"	v	file:
+_static_conv	inet.c	/^static conversion _static_conv[] = {$/;"	v	file:
+_static_conv	inet6.c	/^static conversion _static_conv[] = {$/;"	v	file:
+_static_conv	ipx.c	/^static conversion _static_conv[] = {$/;"	v	file:
+_static_default	can.c	/^static option_default _static_default[] = {$/;"	v	file:
+_static_default	inet.c	/^static option_default _static_default[] = {$/;"	v	file:
+_static_default	inet6.c	/^static option_default _static_default[] = {$/;"	v	file:
+_static_default	ipx.c	/^static option_default _static_default[] = {$/;"	v	file:
+_static_down	can.c	/^static int _static_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_down	inet.c	/^static int _static_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_down	inet6.c	/^static int _static_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_down	ipx.c	/^static int _static_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_rename	can.c	/^static int _static_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_static_rename	inet.c	/^static int _static_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_static_rename	inet6.c	/^static int _static_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_static_rename	ipx.c	/^static int _static_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_static_up	can.c	/^static int _static_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_up	inet.c	/^static int _static_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_up	inet6.c	/^static int _static_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_static_up	ipx.c	/^static int _static_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_tunnel_conv	inet.c	/^static conversion _tunnel_conv[] = {$/;"	v	file:
+_tunnel_default	inet.c	/^static option_default _tunnel_default[] = {$/;"	v	file:
+_tunnel_down	inet.c	/^static int _tunnel_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_tunnel_rename	inet.c	/^static int _tunnel_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_tunnel_up	inet.c	/^static int _tunnel_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_v4tunnel_conv	inet6.c	/^static conversion _v4tunnel_conv[] = {$/;"	v	file:
+_v4tunnel_default	inet6.c	/^static option_default _v4tunnel_default[] = {$/;"	v	file:
+_v4tunnel_down	inet6.c	/^static int _v4tunnel_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_v4tunnel_rename	inet6.c	/^static int _v4tunnel_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_v4tunnel_up	inet6.c	/^static int _v4tunnel_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_wvdial_conv	inet.c	/^static conversion _wvdial_conv[] = {$/;"	v	file:
+_wvdial_default	inet.c	/^static option_default _wvdial_default[] = {$/;"	v	file:
+_wvdial_down	inet.c	/^static int _wvdial_down(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+_wvdial_rename	inet.c	/^static int _wvdial_rename(interface_defn *ifd, execfn *exec) { return 0; }$/;"	f	file:
+_wvdial_up	inet.c	/^static int _wvdial_up(interface_defn *ifd, execfn *exec) {$/;"	f	file:
+add_allow_up	config.c	/^static allowup_defn *add_allow_up(const char *filename, int line, allowup_defn *allow_up, const char *iface_name) {$/;"	f	file:
+add_to_list	config.c	/^static void add_to_list(char ***list, int *count, const char *item) {$/;"	f	file:
+addr_can	can.c	/^address_family addr_can = {$/;"	v
+addr_fams	addrfam.c	/^address_family *addr_fams[] = {$/;"	v
+addr_inet	inet.c	/^address_family addr_inet = {$/;"	v
+addr_inet6	inet6.c	/^address_family addr_inet6 = {$/;"	v
+addr_ipx	ipx.c	/^address_family addr_ipx = {$/;"	v
+addr_link	link.c	/^address_family addr_link = {$/;"	v
+addr_meta	meta.c	/^address_family addr_meta = {$/;"	v
+address_family	header.h	/^	address_family *address_family;$/;"	m	struct:interface_defn
+address_family	header.h	/^struct address_family {$/;"	s
+address_family	header.h	/^typedef struct address_family address_family;$/;"	t	typeref:struct:address_family
+addstr	execute.c	/^static void addstr(char **buf, size_t *len, size_t *pos, const char *str, size_t strlen) {$/;"	f	file:
+allow_class	main.c	/^char *allow_class = NULL;$/;"	v
+allowup_defn	header.h	/^struct allowup_defn {$/;"	s
+allowup_defn	header.h	/^typedef struct allowup_defn allowup_defn;$/;"	t	typeref:struct:allowup_defn
+allowups	header.h	/^	allowup_defn *allowups;$/;"	m	struct:interfaces_file
+already_seen	config.c	/^static bool already_seen(const char *filename) {$/;"	f	file:
+append_to_list_nodup	main.c	/^static void append_to_list_nodup(char ***list, int *n, char *entry) {$/;"	f	file:
+argc	header.h	/^	int argc;$/;"	m	struct:conversion
+argv	header.h	/^	char **argv;$/;"	m	struct:conversion
+argv0	main.c	/^static const char *argv0;$/;"	v	file:
+check	execute.c	/^static int check(const char *str) {$/;"	f	file:
+check_stdio	main.c	/^static void check_stdio(void) {$/;"	f	file:
+cleanup_hwaddress	archcommon.c	/^void cleanup_hwaddress(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+clear_seen	config.c	/^static void clear_seen(void) {$/;"	f	file:
+cmds	main.c	/^static cmds_t cmds = NULL;$/;"	v	file:
+cmds_t	main.c	/^typedef int (*cmds_t)(interface_defn *);$/;"	t	file:
+command_set	header.h	/^typedef int (command_set) (interface_defn *ifd, execfn *e);$/;"	t
+compute_v4_addr	archcommon.c	/^void compute_v4_addr(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+compute_v4_broadcast	archcommon.c	/^void compute_v4_broadcast(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+compute_v4_mask	archcommon.c	/^void compute_v4_mask(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+conversion	header.h	/^struct conversion {$/;"	s
+conversion	header.h	/^typedef struct conversion conversion;$/;"	t	typeref:struct:conversion
+conversions	header.h	/^	conversion *conversions;$/;"	m	struct:method
+convert_variables	config.c	/^void convert_variables(conversion *conversions, interface_defn *ifd) {$/;"	f
+copy_variables	config.c	/^static interface_defn *copy_variables(interface_defn *destif, interface_defn *srcif) {$/;"	f	file:
+defaults	header.h	/^	option_default *defaults;$/;"	m	struct:method
+defn	main.c	/^interfaces_file *defn;$/;"	v
+determine_command	main.c	/^static cmds_t determine_command(void) {$/;"	f	file:
+directory_filter	config.c	/^static int directory_filter(const struct dirent *d) {$/;"	f	file:
+do_all	main.c	/^bool do_all = false;$/;"	v
+do_interface	main.c	/^static bool do_interface(const char *target_iface, char *is_parent) {$/;"	f	file:
+do_post_all	main.c	/^static void do_post_all(void) {$/;"	f	file:
+do_pre_all	main.c	/^static void do_pre_all(void) {$/;"	f	file:
+do_rename	main.c	/^static void do_rename(void) {$/;"	f	file:
+do_state	main.c	/^static bool do_state(int n_target_ifaces, char *target_iface[]) {$/;"	f	file:
+doit	execute.c	/^int doit(const char *str) {$/;"	f
+down	header.h	/^	command_set *up, *down, *rename;$/;"	m	struct:method
+excludeint	main.c	/^static char **excludeint = NULL;$/;"	v	file:
+excludeints	main.c	/^static int excludeints = 0;$/;"	v	file:
+execable	archcommon.c	/^bool execable(const char *program) {$/;"	f
+execfn	header.h	/^typedef int (execfn) (const char *command);$/;"	t
+execute	execute.c	/^int execute(const char *command, interface_defn *ifd, execfn *exec) {$/;"	f
+execute_options	execute.c	/^static int execute_options(interface_defn *ifd, execfn *exec, char *opt) {$/;"	f	file:
+execute_scripts	execute.c	/^static int execute_scripts(interface_defn *ifd, execfn *exec, char *opt) {$/;"	f	file:
+expand_matches	main.c	/^static void expand_matches(int *argc, char ***argv) {$/;"	f	file:
+filename	config.c	/^	char *filename;$/;"	m	struct:seen_file	file:
+find_allowup	config.c	/^allowup_defn *find_allowup(interfaces_file *defn, const char *name) {$/;"	f
+fn	header.h	/^	void (*fn) (interface_defn *, char **, int, char **);$/;"	m	struct:conversion
+force	main.c	/^static bool force = false;$/;"	v	file:
+get_address_family	config.c	/^static address_family *get_address_family(address_family *af[], const char *name) {$/;"	f	file:
+get_allowup	config.c	/^static allowup_defn *get_allowup(allowup_defn **allowups, const char *name) {$/;"	f	file:
+get_interface	config.c	/^static interface_defn *get_interface(interfaces_file *defn, const char *iface, const char *addr_fam) {$/;"	f	file:
+get_interface_list	main.c	/^static void get_interface_list(void) {$/;"	f	file:
+get_keyword	config.c	/^static keyword get_keyword(const char *word) {$/;"	f	file:
+get_line	config.c	/^static int get_line(char **result, size_t *result_len, FILE *f, int *line) {$/;"	f	file:
+get_method	config.c	/^static method *get_method(address_family *af, const char *name) {$/;"	f	file:
+get_token	archcommon.c	/^void get_token(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+get_var	execute.c	/^char *get_var(const char *id, size_t idlen, interface_defn *ifd) {$/;"	f
+help	main.c	/^static void help(int (*cmds) (interface_defn *)) {$/;"	f	file:
+if_set	archcommon.c	/^void if_set(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+iface_down	execute.c	/^int iface_down(interface_defn *iface) {$/;"	f
+iface_has	archcommon.h	6;"	d
+iface_is_link	archcommon.h	5;"	d
+iface_is_lo	archcommon.h	7;"	d
+iface_list	execute.c	/^int iface_list(interface_defn *iface) {$/;"	f
+iface_postdown	execute.c	/^int iface_postdown(interface_defn *iface) {$/;"	f
+iface_postup	execute.c	/^int iface_postup(interface_defn *iface) {$/;"	f
+iface_predown	execute.c	/^int iface_predown(interface_defn *iface) {$/;"	f
+iface_preup	execute.c	/^int iface_preup(interface_defn *iface) {$/;"	f
+iface_query	execute.c	/^int iface_query(interface_defn *iface) {$/;"	f
+iface_up	execute.c	/^int iface_up(interface_defn *iface) {$/;"	f
+ifaces	header.h	/^	interface_defn *ifaces;$/;"	m	struct:interfaces_file
+ifacestatefile	main.c	/^static char *ifacestatefile(const char *iface) {$/;"	f	file:
+ifap	main.c	/^struct ifaddrs *ifap = NULL;$/;"	v	typeref:struct:ifaddrs
+ignore_failures	main.c	/^bool ignore_failures = false;$/;"	v
+ignore_interface	main.c	/^static bool ignore_interface(const char *iface) {$/;"	f	file:
+interface_defn	header.h	/^struct interface_defn {$/;"	s
+interface_defn	header.h	/^typedef struct interface_defn interface_defn;$/;"	t	typeref:struct:interface_defn
+interfaces	header.h	/^	char **interfaces;$/;"	m	struct:allowup_defn
+interfaces	main.c	/^static char *interfaces = NULL;$/;"	v	file:
+interfaces_file	header.h	/^struct interfaces_file {$/;"	s
+interfaces_file	header.h	/^typedef struct interfaces_file interfaces_file;$/;"	t	typeref:struct:interfaces_file
+is_locked	main.c	/^static bool is_locked(const char *iface) {$/;"	f	file:
+is_pattern	main.c	/^static bool is_pattern(const char *name) {$/;"	f	file:
+keyword	config.c	/^enum keyword {$/;"	g	file:
+keyword	config.c	/^typedef enum keyword keyword;$/;"	t	typeref:enum:keyword	file:
+keywords	config.c	/^static const char *keywords[] = {$/;"	v	file:
+list	main.c	/^static bool list = false;$/;"	v	file:
+localenv	execute.c	/^static char **localenv = NULL;$/;"	v	file:
+lock_fd	main.c	/^static int lock_fd(int fd) {$/;"	f	file:
+lock_interface	main.c	/^static FILE *lock_interface(const char *iface, char **state) {$/;"	f	file:
+lock_state	main.c	/^static FILE *lock_state(void) {$/;"	f	file:
+lockfile	main.c	/^static char *lockfile;$/;"	v	file:
+logical_iface	header.h	/^	char *logical_iface;$/;"	m	struct:interface_defn
+main	main.c	/^int main(int argc, char *argv[]) {$/;"	f
+make_hex_address	archcommon.c	/^void make_hex_address(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+make_pidfile_name	main.c	/^char *make_pidfile_name(const char *command, interface_defn *ifd) {$/;"	f
+map_value	archcommon.c	/^void map_value(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+mapping	header.h	/^	char **mapping;$/;"	m	struct:mapping_defn
+mapping_defn	header.h	/^struct mapping_defn {$/;"	s
+mapping_defn	header.h	/^typedef struct mapping_defn mapping_defn;$/;"	t	typeref:struct:mapping_defn
+mappings	header.h	/^	mapping_defn *mappings;$/;"	m	struct:interfaces_file
+match	header.h	/^	char **match;$/;"	m	struct:mapping_defn
+match_mac	archkfreebsd.c	/^static bool match_mac(const char *iface, const char *pattern) {$/;"	f	file:
+match_patterns	main.c	/^bool match_patterns(const char *string, int argc, char *argv[]) {$/;"	f
+max_interfaces	header.h	/^	int max_interfaces;$/;"	m	struct:allowup_defn
+max_mappings	header.h	/^	int max_mappings;$/;"	m	struct:mapping_defn
+max_matches	header.h	/^	int max_matches;$/;"	m	struct:mapping_defn
+max_options	header.h	/^	int max_options;$/;"	m	struct:interface_defn
+max_options	main.c	/^static int max_options = 0;$/;"	v	file:
+meta_iface	main.c	/^static interface_defn meta_iface = {$/;"	v	file:
+method	header.h	/^	method *method;$/;"	m	struct:address_family
+method	header.h	/^	method *method;$/;"	m	struct:interface_defn
+method	header.h	/^struct method {$/;"	s
+method	header.h	/^typedef struct method method;$/;"	t	typeref:struct:method
+methods	can.c	/^static method methods[] = {$/;"	v	file:
+methods	inet.c	/^static method methods[] = {$/;"	v	file:
+methods	inet6.c	/^static method methods[] = {$/;"	v	file:
+methods	ipx.c	/^static method methods[] = {$/;"	v	file:
+methods	link.c	/^static method methods[] = {$/;"	v	file:
+methods	meta.c	/^static method methods[] = {$/;"	v	file:
+n_interfaces	header.h	/^	int n_interfaces;$/;"	m	struct:allowup_defn
+n_mappings	header.h	/^	int n_mappings;$/;"	m	struct:mapping_defn
+n_matches	header.h	/^	int n_matches;$/;"	m	struct:mapping_defn
+n_methods	header.h	/^	int n_methods;$/;"	m	struct:address_family
+n_options	header.h	/^	int n_options;$/;"	m	struct:interface_defn
+n_options	main.c	/^static int n_options = 0;$/;"	v	file:
+n_target_ifaces	main.c	/^static int n_target_ifaces;$/;"	v	file:
+name	header.h	/^	char *name;$/;"	m	struct:address_family
+name	header.h	/^	char *name;$/;"	m	struct:method
+name	header.h	/^	char *name;$/;"	m	struct:variable
+newoption	header.h	/^	char *newoption;$/;"	m	struct:conversion
+next	config.c	/^	struct seen_file *next;$/;"	m	struct:seen_file	typeref:struct:seen_file::seen_file	file:
+next	header.h	/^	allowup_defn *next;$/;"	m	struct:allowup_defn
+next	header.h	/^	interface_defn *next;$/;"	m	struct:interface_defn
+next	header.h	/^	mapping_defn *next;$/;"	m	struct:mapping_defn
+next_word	config.c	/^static char *next_word(char *buf, char *word, int maxlen) {$/;"	f	file:
+no_act	main.c	/^bool no_act = false;$/;"	v
+no_auto_down_int	main.c	/^char **no_auto_down_int = NULL;$/;"	v
+no_auto_down_ints	main.c	/^int no_auto_down_ints = 0;$/;"	v
+no_loopback	main.c	/^bool no_loopback = false;$/;"	v
+no_scripts_int	main.c	/^char **no_scripts_int = NULL;$/;"	v
+no_scripts_ints	main.c	/^int no_scripts_ints = 0;$/;"	v
+option	header.h	/^	char *option;$/;"	m	struct:conversion
+option	header.h	/^	char *option;$/;"	m	struct:option_default
+option	header.h	/^	variable *option;$/;"	m	struct:interface_defn
+option	main.c	/^static variable *option = NULL;$/;"	v	file:
+option_default	header.h	/^struct option_default {$/;"	s
+option_default	header.h	/^typedef struct option_default option_default;$/;"	t	typeref:struct:option_default
+parse	execute.c	/^static char *parse(const char *command, interface_defn *ifd) {$/;"	f	file:
+parse_environment_variables	main.c	/^static void parse_environment_variables(void) {$/;"	f	file:
+parse_options	main.c	/^static void parse_options(int *argc, char **argv[]) {$/;"	f	file:
+popen2	execute.c	/^static int popen2(FILE **in, FILE **out, char *command, ...) {$/;"	f	file:
+read_all_state	main.c	/^static void read_all_state(char ***ifaces, int *n_ifaces) {$/;"	f	file:
+read_interfaces	config.c	/^interfaces_file *read_interfaces(const char *filename) {$/;"	f
+read_interfaces_defn	config.c	/^static interfaces_file *read_interfaces_defn(interfaces_file *defn, const char *filename) {$/;"	f	file:
+real_iface	header.h	/^	char *real_iface;$/;"	m	struct:interface_defn
+rename	header.h	/^	command_set *up, *down, *rename;$/;"	m	struct:method
+rename_int	main.c	/^char **rename_int = NULL;$/;"	v
+rename_ints	main.c	/^int rename_ints = 0;$/;"	v
+run_mapping	execute.c	/^bool run_mapping(const char *physical, char *logical, int len, mapping_defn *map) {$/;"	f
+run_mappings	main.c	/^static bool run_mappings = true;$/;"	v	file:
+run_scripts	main.c	/^bool run_scripts = true;$/;"	v
+sanitize_env_name	main.c	/^static void sanitize_env_name(char *name) {$/;"	f	file:
+sanitize_file_name	main.c	/^static void sanitize_file_name(char *name) {$/;"	f	file:
+script	header.h	/^	char *script;$/;"	m	struct:mapping_defn
+seen_file	config.c	/^struct seen_file {$/;"	s	file:
+seen_files	config.c	/^} *seen_files = NULL;$/;"	v	typeref:struct:seen_file
+select_interfaces	main.c	/^static void select_interfaces(int argc, char *argv[]) {$/;"	f	file:
+set_environ	execute.c	/^static void set_environ(interface_defn *iface, char *mode, char *phase) {$/;"	f	file:
+set_preferred_lft	archcommon.c	/^void set_preferred_lft(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+set_variable	config.c	/^variable *set_variable(const char *name, const char *value, variable **var, int *n_vars, int *max_vars) {$/;"	f
+setlocalenv	execute.c	/^static char *setlocalenv(char *format, char *name, char *value) {$/;"	f	file:
+setlocalenv_nomangle	execute.c	/^static char *setlocalenv_nomangle(char *format, char *name, char *value) {$/;"	f	file:
+state_query	main.c	/^static bool state_query = false;$/;"	v	file:
+statedir	main.c	/^static char *statedir;$/;"	v	file:
+statefile	main.c	/^static char *statefile;$/;"	v	file:
+strip	main.c	/^static char *strip(char *buf) {$/;"	f	file:
+strlmatch	header.h	127;"	d
+strncmpz	execute.c	/^int strncmpz(const char *l, const char *r, size_t llen) {$/;"	f
+target_iface	main.c	/^static char **target_iface;$/;"	v	file:
+tmpstatefile	main.c	/^static char *tmpstatefile;$/;"	v	file:
+to_decimal	archcommon.c	/^void to_decimal(interface_defn *ifd, char **pparam, int argc, char **argv) {$/;"	f
+up	header.h	/^	command_set *up, *down, *rename;$/;"	m	struct:method
+update_state	main.c	/^static void update_state(const char *iface, const char *state, FILE *lock_fp) {$/;"	f	file:
+usage	main.c	/^static void usage(void) {$/;"	f	file:
+value	header.h	/^	char *value;$/;"	m	struct:option_default
+value	header.h	/^	char *value;$/;"	m	struct:variable
+var_set	execute.c	/^bool var_set(const char *id, interface_defn *ifd) {$/;"	f
+var_set_anywhere	execute.c	/^bool var_set_anywhere(const char *id, interface_defn *ifd) {$/;"	f
+var_true	execute.c	/^bool var_true(const char *id, interface_defn *ifd) {$/;"	f
+variable	header.h	/^struct variable {$/;"	s
+variable	header.h	/^typedef struct variable variable;$/;"	t	typeref:struct:variable
+variable_match	archhurd.c	/^bool variable_match(const char *iface, const char *variable, const char *pattern) {$/;"	f
+variable_match	archkfreebsd.c	/^bool variable_match(const char *iface, const char *variable, const char *pattern) {$/;"	f
+variable_match	archlinux.c	/^bool variable_match(const char *iface, const char *variable, const char *pattern) {$/;"	f
+verbose	main.c	/^bool verbose = false;$/;"	v
+version	main.c	/^static void version(void) {$/;"	f	file:
+when	header.h	/^	char *when;$/;"	m	struct:allowup_defn

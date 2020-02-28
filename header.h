@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include <ifaddrs.h>
 
 typedef struct address_family address_family;
 typedef struct method method;
@@ -24,7 +25,7 @@ struct address_family {
 
 struct method {
 	char *name;
-	command_set *up, *down;
+	command_set *up, *down, *rename;
 	conversion *conversions;
 	option_default *defaults;
 };
@@ -104,6 +105,7 @@ struct mapping_defn {
 #endif
 
 extern address_family *addr_fams[];
+extern struct ifaddrs *ifap;
 
 variable *set_variable(const char *name, const char *value, variable **var, int *n_vars, int *max_vars);
 void convert_variables(conversion *conversions, interface_defn *ifd);
@@ -129,14 +131,17 @@ bool var_true(const char *id, interface_defn *ifd);
 bool var_set(const char *id, interface_defn *ifd);
 bool var_set_anywhere(const char *id, interface_defn *ifd);
 bool run_mapping(const char *physical, char *logical, int len, mapping_defn *map);
+void sanitize_env_name(char *name);
 char *make_pidfile_name(const char *command, interface_defn *fd);
 
 extern bool no_act;
+extern bool no_act_commands;
 extern bool do_all;
 extern bool verbose;
 extern bool run_scripts;
 extern bool no_loopback;
 extern bool ignore_failures;
+extern volatile bool interrupted;
 extern interfaces_file *defn;
 extern address_family addr_link;
 extern address_family addr_inet;
@@ -150,5 +155,7 @@ extern char **no_auto_down_int;
 extern int no_auto_down_ints;
 extern char **no_scripts_int;
 extern int no_scripts_ints;
+extern char **rename_int;
+extern int rename_ints;
 
 #endif				/* HEADER_H */

@@ -11,7 +11,7 @@
 .  fi
 .  PP
 ..
-.TH INTERFACES 5 "4 June 2016" "ifupdown" "File formats"
+.TH INTERFACES 5 "24 July 2017" "ifupdown" "File formats"
 .SH NAME
 /etc/network/interfaces \- network interface configuration for ifup and ifdown
 .SH DESCRIPTION
@@ -24,6 +24,7 @@ commands.
 This is where you configure how your system is connected to the network.
 .SH EXAMPLE
 The following example configures two network interfaces: eth0 is brought up at boot, and uses DHCP for IPv4 and SLAAC for IPv6, whereas eth1 is brought up whenever the network hardware is detected, and is configured with static IPv4 and IPv6 addresses.
+.P
 .EX
 auto eth0
 allow-hotplug eth1
@@ -47,7 +48,7 @@ NOT supported, comments must be on a line of their own.
 A line may be extended across multiple lines by making the last character
 a backslash.
 .P
-The file consists of zero or more "iface", "mapping", "auto", "allow-",
+The file consists of zero or more "iface", "mapping", "auto", "allow-", "rename",
 "source" and "source-directory" stanzas. These will be described in more detail in the following sections.
 .SH INTERFACE SELECTION
 Lines beginning with the word "auto" are used to identify the physical
@@ -62,7 +63,7 @@ There can be multiple "auto" stanzas.
 brings the named interfaces up in the order listed.
 .P
 Lines beginning with "allow-" are used to identify interfaces that should
-be brought up automatically by various subsytems. This may be done using
+be brought up automatically by various subsystems. This may be done using
 a command such as "ifup \-\-allow=hotplug eth0 eth1", which will only bring
 up eth0 or eth1 if it is listed in an "allow-hotplug" line. Note that
 "allow-auto" and "auto" are synonyms.
@@ -81,6 +82,31 @@ specifying the interface name explicitly.
 Lines beginning with "no-scripts" are used to identify interfaces for which scripts in
 .IR /etc/network/if\-*.d/
 should not be run when those interfaces are brought up or down.
+he above will match eth0 and eth1, and will bring up both interfaces using the "iface eth" stanza.
+.SH INTERFACE RENAMING
+Lines beginning with "rename" are used to rename interfaces.
+It takes one or more arguments in the form of "CUR=NEW", where CUR is the name of an existing interface, and NEW is the new name.
+This becomes very powerful when combined with pattern matching for the CUR interface.
+.P
+Interfaces are renamed whenever "ifup" is called.
+Renaming logically happens before anything else is done.
+So if an interface is started with the name "foo", and it has to be renamed to "bar" and brought up at boot time,
+then one should use the following /etc/network/interfaces file:
+.P
+.EX
+rename foo=bar
+auto bar
+iface bar ...
+.EE
+.P
+However, if the interface is not renamed yet, it is possible to use both "ifup foo" and "ifup bar".
+The former command will then automatically be converted to the latter.
+This is mainly useful when ifup is called automatically whenever an interface is hotplugged.
+.P
+Interface renaming only works if the operating system supports it,
+if an interface is not renamed to another existing interface,
+and may require that the interface that is to be renamed has not been brought up yet.
+If ifup tries to rename an interface and it fails, it will exit with an error.
 .SH INCLUDING OTHER FILES
 Lines beginning with "source" are used to include stanzas from other files,
 so configuration can be split into many files. The word "source" is
@@ -104,10 +130,6 @@ keyword is placed. In the example above, if the file is located at
 .IR /etc/network/interfaces\fR,
 paths to the included files are understood to be under
 .IR /etc/network\fR.
-.P
-Currently, "source-directory" isn't supported by
-.BR network-manager " and"
-.BR guessnet .
 .P
 By default, on a freshly installed Debian system, the interfaces file includes a
 line to source files in the
@@ -201,16 +223,110 @@ iface eth0 inet static inherits ethernet
 This may be useful to separate link-level settings shared by multiple
 interfaces from, for example, IP address settings specific to every
 interface.
+.SH PATTERN MATCHING INTERFACES
+It is possible to use patterns to match one or more real interfaces.
+These patterns can currently appear in lines beginning with "auto", "allow-", "rename" and on the command line.
+A pattern has the following format (see below for exceptions for GNU/Hurd):
 .P
+.EX
+[VARIABLE]/VALUE[/[OPTIONS]][=LOGICAL]
+.EE
+.P
+If no VARIABLE is given, this pattern will match interface names against the given VALUE.
+VALUE can contain wildcard patterns such as ? and *,
+see the
+.BR fnmatch (3)
+function.
+When
+.BR ifup
+or
+.BR ifdown
+is run, patterns are replaces by all real interfaces that are currently known to the operating system kernel and whose names match the pattern.
+For example, given the following line:
+.P
+.EX
+auto /eth*
+.EE
+.P
+If the kernel knows about the interfaces with names lo, eth0 and eth1,
+then the above line is then interpreted as:
+.P
+.EX
+auto eth0 eth1
+.EE
+.P
+Note that there must still be valid "iface" stanzas for each matching interface.
+However, it is possible to combine a pattern with a mapping to a logical interface, like so:
+.P
+.EX
+auto /eth*=eth
+iface eth inet dhcp
+.EE
+.P
+Valid variable names are "mac", in which case value is matched against the interface's MAC address.
+On Linux, the variable name can also be any filename in /sys/class/net/<iface>/,
+in which case the value is matched against the contents of the corresponding file.
+.P
+The OPTIONS field currently only supports a number. If given, only the n-th interface that has a matching value will actually be used, where n is the number given, starting at 1. So /eth*/1 will match the first interface whose name starts with eth.
+.P
+On GNU/Hurd, interface names start with /dev/, and this obviously clashes with the format for patterns.
+To ensure an interface name like /dev/eth0 does not get interpreted as a pattern,
+any pattern that starts with /dev/ is ignored, and instead interpreted as a literal interface name.
+To make a pattern that matches interface names on GNU/Hurd, use something like:
+.P
+.EX
+auto /?dev?eth*=eth
+iface eth inet dhcp
+.EE
 .SH VLAN INTERFACES
 To ease the configuration of VLAN interfaces, interfaces having
 .B .
 (full stop character) in the name are configured as 802.1q tagged
 virtual LAN interface. For example, interface
 .B eth0.1
-is a virtual interface having
+is a virtual interface with VLAN ID 1 having
 .B eth0
-as physical link, with VLAN ID 1.
+as its parent interface.
+.P
+VLAN interfaces are mostly treated as independent interfaces.
+As such, a VLAN interface is normally not automatically brought up when its parent interface is brought up.
+The exception is when ifup is called with the --allow option,
+in which case all VLAN interfaces that are in the same allow class as the parent interface
+are brought up together with the parent interface.
+For example:
+.P
+.EX
+allow-hotplug eth0 eth0.1
+
+iface eth0 inet static
+     address ...
+
+iface eth0.1 inet static
+     address ...
+
+iface eth0.2 inet static
+     address ...
+.EE
+.P
+In the above example,
+when "ifup --allow hotplug eth0" is called (either manually or because udev triggers this when a network device is hotplugged),
+the interface eth0 and the VLAN interface eth0.1 are brought up, but eth0.2 is not.
+.P
+Keep in mind that pattern matching will only match interfaces the kernel knows about,
+so it is not possible to specify "auto /eth0.*" and have all VLAN interfaces for eth0 be brought up at boot time.
+Another way to ensure that a VLAN interface is brought up automatically when the parent interface is brought up,
+is to use a recursive call to ifup, like so:
+.P
+.EX
+iface eth0 inet manual
+     up ifup eth0.3
+
+iface eth0.3 inet static
+     address ...
+.EE
+.P
+Note that there is no need to add an explicit call to ifdown,
+since VLAN interfaces are automatically brought down whenever their parent interfaces are brought down.
 .SH IFACE OPTIONS
 The following "command" options are available for every family and method.
 Each of these options can be given multiple times in a single stanza,
@@ -273,12 +389,33 @@ This behavior may change in the future.
 .BI description " name"
 Alias interface by
 .I name
+.SH HOOK SCRIPTS
+There are four directories in which scripts can be placed which will always be run
+for any interface during certain phases of ifup and ifdown commands. These are:
+.TP
+.IR /etc/network/if-pre-up.d/
+Scripts in this directory are run before bringing the interface up.
+.TP
+.IR /etc/network/if-up.d/
+Scripts in this directory are run after bringing the interface up.
+.TP
+.IR /etc/network/if-down.d/
+Scripts in this directory are run before bringing the interface down.
+.TP
+.IR /etc/network/if-post-down.d/
+Scripts in this directory are run after bringing the interface down.
 .P
-There exists for each of the above mentioned options a directory
-.IR /etc/network/if\-\fB<option>\fI.d/
-the scripts in which are run (with no arguments) using
+The scripts in which are run (with no arguments) using
 .BR run\-parts (8)
-after the option itself has been processed. Please note that as
+after the corresponding
+.BI pre-up\fR,
+.BI up\fR,
+.BI down
+and
+.BI post-down
+options in the
+.IR /etc/network/interfaces
+file itself have been processed. Please note that as
 .BI post\-up
 and
 .BI pre\-down
@@ -288,8 +425,16 @@ Please use
 and
 .IR if-down.d
 directories instead.
-.P
-All of these commands have access to the following environment variables.
+.SH ENVIRONMENT VARIABLES
+All hook scripts, and the commands executed by
+.BI pre-up\fR,
+.BI up\fR,
+.BI post-up\fR,
+.BI pre-down\fR,
+.BI down
+and
+.BI post-down
+have access to the following environment variables:
 .TP
 .B IFACE
 The physical name of the interface being processed, or "--all" (see below).
@@ -329,11 +474,24 @@ exported to the environment in upper case with "IF_" prepended and with
 hyphens converted to underscores and non\-alphanumeric characters discarded.
 .P
 When ifupdown is being called with the \fB\-\-all\fR option, before doing anything
-to interfaces, if calls all the hook scripts (\fIpre-up\fR or \fIdown\fR) with
+to interfaces, it calls all the hook scripts (\fIpre-up\fR or \fIdown\fR) with
 \fBIFACE\fR set to "\-\-all", \fBLOGICAL\fR set to the current value of \-\-allow
 parameter (or "auto" if it's not set), \fBADDRFAM\fR="meta" and \fBMETHOD\fR="none".
 After all the interfaces have been brought up or taken down, the appropriate scripts
 (\fIup\fR or \fIpost-down\fR) are executed.
+.SH CONCURRENCY AND PARALLEL EXECUTION
+Ifupdown uses per-interface locking to ensure that concurrent ifup and ifdown calls to the same interface are run in serial.
+However, calls to different interfaces will be able to run in parallel.
+It is therefore important that any hook scripts and \fIpre-up\fR, \fIup\fR, \fIdown\fR and \fIpost-down\fR commands are written with the possibility of parallel execution in mind.
+.P
+It is allowed to recursively call
+.BI ifup
+and
+.BI ifdown
+from hook scripts and interface commands,
+as long as these calls refer to a different interface than the one that is already being (de)configured.
+Loops are detected and will result in the call failing instead of a deadlock,
+although it is best if one does not rely on that.
 .SH OPTIONS PROVIDED BY OTHER PACKAGES
 This manual page documents the configuration options provided by the ifupdown package.
 However, other packages can make other options available for use in /etc/network/interfaces.
