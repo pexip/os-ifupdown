@@ -90,7 +90,7 @@ ifup: configuring interface eth1=eth1 (inet6)
 /sbin/ip addr flush dev eth1 mngtmpaddr
 /sbin/ip link set dev eth1  up
 /sbin/ip -6 addr add 3ffe:ffff:100:f102::1/64  dev eth1  nodad
- /sbin/ip -6 route add default via 3ffe:ffff:100:f102::fff  dev eth1 onlink 
+ /sbin/ip -6 route replace default via 3ffe:ffff:100:f102::fff  dev eth1 onlink 
 /bin/run-parts --exit-on-error --verbose /etc/network/if-up.d
 ifup: configuring interface eth1=eth1 (inet6)
 /bin/run-parts --exit-on-error --verbose /etc/network/if-pre-up.d
@@ -101,6 +101,6 @@ ifup: configuring interface eth1=eth1 (inet6)
 
 /sbin/ip link set dev eth1  up
 /sbin/ip -6 addr add 3ffe:ffff:100:f102::6/64  dev eth1  nodad
- /sbin/ip -6 route add default via 3ffe:ffff:100:f102::fff  dev eth1 onlink 
+ /sbin/ip -6 route replace default via 3ffe:ffff:100:f102::fff  dev eth1 onlink 
 /bin/run-parts --exit-on-error --verbose /etc/network/if-up.d
 /bin/run-parts --exit-on-error --verbose /etc/network/if-up.d

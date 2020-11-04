@@ -89,8 +89,8 @@ method dhcp
     metric metric           -- Metric for added routes (dhclient)
     leasehours leasehours   -- Preferred lease time in hours (pump)
     leasetime leasetime     -- Preferred lease time in seconds (dhcpcd)
-    vendor vendor           -- Vendor class identifier (dhcpcd)
-    client client           -- Client identifier (dhcpcd)
+    vendor vendor_id        -- Vendor class identifier (dhcpcd)
+    client client_id        -- Client identifier (dhcpcd), or "no" (dhclient)
     hwaddress address       -- Hardware address.
 
   conversion
@@ -98,7 +98,7 @@ method dhcp
 
   up
     [[/sbin/ip link set dev %iface% address %hwaddress%]]
-    /sbin/dhclient -4 -v -i -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    CLIENT="-i"; [[[ "%client%" = no ] && CLIENT="";]] /sbin/dhclient -4 -v $CLIENT -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
 	[[-e IF_METRIC=%metric%]] \
         if (execable("/sbin/dhclient"))
     /sbin/pump -i %iface% [[-h %hostname%]] [[-l %leasehours%]] \
@@ -112,7 +112,7 @@ method dhcp
         elsif (1)
 
   down
-    /sbin/dhclient -4 -v -i -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    CLIENT="-i"; [[[ "%client%" = no ] && CLIENT="";]] /sbin/dhclient -4 -v $CLIENT -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
         if (execable("/sbin/dhclient"))
     /sbin/pump -i %iface% -r \
         elsif (execable("/sbin/pump"))
@@ -275,8 +275,8 @@ method dhcp
     hostname hostname       -- Hostname to be requested (dhcpcd, udhcpc)
     metric metric           -- Metric for added routes (dhclient)
     leasetime leasetime     -- Preferred lease time in seconds (dhcpcd)
-    vendor vendor           -- Vendor class identifier (dhcpcd)
-    client client           -- Client identifier (dhcpcd, udhcpc)
+    vendor vendor_id        -- Vendor class identifier (dhcpcd)
+    client client_id        -- Client identifier (dhcpcd, udhcpc) or "no" (dhclient)
     hwaddress address       -- Hardware Address.
 
   conversion
@@ -284,7 +284,7 @@ method dhcp
 
   up
     [[/sbin/ifconfig %iface% link %hwaddress%]]
-    /sbin/dhclient -4 -v -i -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    CLIENT="-i"; [[[ "%client%" = no ] && CLIENT="";]] /sbin/dhclient -4 -v $CLIENT -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
 	[[-e IF_METRIC=%metric%]] \
         if (execable("/sbin/dhclient"))
     /sbin/udhcpc -n -p /run/udhcpc.%iface%.pid -i %iface% [[-H %hostname%]] \
@@ -297,7 +297,7 @@ method dhcp
         elsif (1)
 
   down
-    /sbin/dhclient -4 -v -i -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
+    CLIENT="-i"; [[[ "%client%" = no ] && CLIENT="";]] /sbin/dhclient -4 -v $CLIENT -r -pf /run/dhclient.%iface%.pid -lf /var/lib/dhcp/dhclient.%iface%.leases -I -df /var/lib/dhcp/dhclient6.%iface%.leases %iface% \
         if (execable("/sbin/dhclient"))
     if test -f /run/udhcpc.%iface%.pid; then kill -USR2 $(/bin/cat /run/udhcpc.%iface%.pid); kill -TERM $(/bin/cat /run/udhcpc.%iface%.pid); fi \
         elsif (execable("/sbin/udhcpc"))
@@ -427,8 +427,8 @@ method dhcp
   options
     hostname hostname       -- Hostname to be requested (dhcpcd, udhcpc)
     leasetime leasetime     -- Preferred lease time in seconds (dhcpcd)
-    vendor vendor           -- Vendor class identifier (dhcpcd)
-    client client           -- Client identifier (dhcpcd, udhcpc)
+    vendor vendor_id        -- Vendor class identifier (dhcpcd)
+    client client_id        -- Client identifier (dhcpcd, udhcpc) or "no" (dhclient)
     hwaddress address       -- Hardware Address (Not yet supported)
 
   conversion
@@ -436,7 +436,7 @@ method dhcp
 
   up
     [[Warning: Option hwaddress: %hwaddress% not yet supported]]
-    /sbin/dhclient -4 -v -i -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
+    CLIENT="-i"; [[[ "%client%" = no ] && CLIENT="";]] /sbin/dhclient -4 -v $CLIENT -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
         if (execable("/sbin/dhclient"))
     /sbin/udhcpc -n -p /run/udhcpc.%iface///.%.pid -i %iface% [[-H %hostname%]] \
            [[-c %client%]] \
@@ -448,7 +448,7 @@ method dhcp
         elsif (1)
 
   down
-    /sbin/dhclient -4 -v -i -r -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
+    CLIENT="-i"; [[[ "%client%" = no ] && CLIENT="";]] /sbin/dhclient -4 -v $CLIENT -r -pf /run/dhclient.%iface///.%.pid -lf /var/lib/dhcp/dhclient.%iface///.%.leases -I -df /var/lib/dhcp/dhclient6.%iface///.%.leases %iface% \
         if (execable("/sbin/dhclient"))
     if test -f /run/udhcpc.%iface///.%.pid; then kill -USR2 $(/bin/cat /run/udhcpc.%iface///.%.pid); kill -TERM $(/bin/cat /run/udhcpc.%iface///.%.pid); fi \
         elsif (execable("/sbin/udhcpc"))

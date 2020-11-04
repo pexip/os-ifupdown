@@ -103,9 +103,9 @@ ifup_hotplug () {
     then
 	    ifaces=$(for iface in $(ifquery --list --allow=hotplug)
 			    do
-				    link=${iface##:*}
-				    link=${link##.*}
-				    if [ -e "/sys/class/net/$link" ]
+				    link=${iface%%:*}
+				    link=${link%%.*}
+				    if [ -e "/sys/class/net/$link" ] && ! ifquery --state "$iface" >/dev/null
 				    then
 					echo "$iface"
 				    fi

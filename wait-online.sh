@@ -19,11 +19,15 @@ ping)
 		echo "No WAIT_ONLINE_ADDRESS specified" >&2
 		exit 1
 	fi
-	/bin/ping -q -c 1 -w "$WAIT_ONLINE_TIMEOUT" "$WAIT_ONLINE_ADDRESS" >/dev/null
+	/usr/bin/timeout "$WAIT_ONLINE_TIMEOUT" /bin/sh -c 'while ! /bin/ping -q -c 1 -W 1 "'$WAIT_ONLINE_ADDRESS'" >/dev/null; do sleep 1; done'
 	;;
 
 ping6)
-	/bin/ping6 -q -c 1 -w "$WAIT_ONLINE_TIMEOUT" "$WAIT_ONLINE_ADDRESS" >/dev/null
+	if [ -z "$WAIT_ONLINE_ADDRESS" ]; then
+		echo "No WAIT_ONLINE_ADDRESS specified" >&2
+		exit 1
+	fi
+	/usr/bin/timeout "$WAIT_ONLINE_TIMEOUT" /bin/sh -c 'while ! /bin/ping6 -q -c 1 -W 1 "'$WAIT_ONLINE_ADDRESS'" >/dev/null; do sleep 1; done'
 	;;
 
 ifup|iface|interface)

@@ -94,7 +94,7 @@ method static
                 if (!var_set("dad-attempts", ifd) || var_true("dad-attempts", ifd))
     /sbin/ip -6 addr add %address%[[/%netmask%]] [[scope %scope%]] dev %iface% [[preferred_lft %preferred-lifetime%]] nodad \
                 if (var_set("dad-attempts", ifd) && !var_true("dad-attempts", ifd))
-    [[ /sbin/ip -6 route add default via %gateway% [[metric %metric%]] dev %iface% onlink ]]
+    [[ /sbin/ip -6 route replace default via %gateway% [[metric %metric%]] dev %iface% onlink ]]
     /lib/ifupdown/settle-dad.sh if (!no_act_commands && execable("/lib/ifupdown/settle-dad.sh") && (var_true("dad-attempts", ifd)))
 
   down
@@ -205,7 +205,7 @@ method v4tunnel
 
 method 6to4
   description
-    This method may be used to setup an 6to4 tunnel. It requires
+    This method may be used to setup a 6to4 tunnel. It requires
     the *ip* command from the *iproute* package.
 
   options
