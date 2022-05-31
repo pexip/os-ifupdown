@@ -1,3 +1,37 @@
+ifupdown (0.8.36) unstable; urgency=low
+
+  [ Janos Lenart ]
+  * Fixed source interfaces.d/
+
+  [ Guus Sliepen ]
+  * Really strip VLAN and alias ids when bringing hotplug interfaces up.
+  * Have the init script ignore hotplug interfaces that are already up.
+    (Closes: #838871)
+  * Allow disabling of client-identifier option for IPv4 dhclient.
+    (Closes: #923640)
+  * Fix ping check loginc in ifupdown-wait-online.service. Closes: #952455
+
+  [ Andrej Shadura ]
+  * Change the way my name is written in the version info
+
+  [ Santiago Ruano Rincón ]
+  * Declare Josué as New Maintainer and Myself as Uploader. Thanks for your
+    work Guus! (Closes: #963891)
+  * Add debian/salsa-ci.yml
+
+  [ Josué Ortega ]
+  * Update package to use debhelper-compat (= 13)
+  * Fix grammar errors on can.defn and inet6.defn files. Thanks
+    to Ville Skyttä <ville.skytta@iki.fi> for the patch. (Closes: #966586)
+  * ifup.8: Update manpage maintainers name
+  * Bump Standards-Version to 4.5.0. No changes required.
+
+  [ Bernhard Schmidt ]
+  * Fix race condition adding a static IPv6 default route on RA networks
+    (Closes: #805445)
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Wed, 04 Nov 2020 07:37:13 +0100
+
 ifupdown (0.8.35pexip2) pexip; urgency=medium
 
   * Rebuild in buster environment

@@ -52,7 +52,7 @@ static void version(void) {
 	printf("%s version " IFUPDOWN_VERSION "\n"
 		"\n"
 		"Copyright (c) 1999-2009 Anthony Towns\n"
-		"              2010-2015 Andrew Shadura\n"
+		"              2010-2015 Andrej Shadura\n"
 		"              2015-2017 Guus Sliepen\n"
 		"\n"
 		"This program is free software; you can redistribute it and/or modify\n"

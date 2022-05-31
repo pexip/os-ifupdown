@@ -3,7 +3,7 @@ architecture linux
 
 method static
   description
-    This method may be used to setup an Controller Area Network (CAN)
+    This method may be used to setup a Controller Area Network (CAN)
     interface. It requires the the *ip* command from the *iproute* package.
 
   options
