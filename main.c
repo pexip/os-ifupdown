@@ -94,7 +94,7 @@ static void help(int (*cmds) (interface_defn *)) {
 		"\t--no-loopback          don't act specially on the loopback device\n");
 
 	if (!(cmds == iface_list) && !(cmds == iface_query))
-		printf(	"\t--force                force de/configuration\n"
+		printf(	"\t-f, --force            force de/configuration\n"
 			"\t--ignore-errors        ignore errors\n");
 
 	if ((cmds == iface_list) || (cmds == iface_query))
@@ -419,7 +419,7 @@ static void parse_environment_variables(void) {
 			excludeint = realloc(excludeint, excludeints * sizeof *excludeint);
 			if (excludeint == NULL)
 				err(1, "realloc");
-			excludeint[excludeints - 1] = tok;
+			excludeint[excludeints - 1] = strdup(tok);
 		}
 		free(excludes);
 	}
@@ -439,7 +439,7 @@ static void parse_options(int *argc, char **argv[]) {
 		{"no-mappings", no_argument, NULL, 1},
 		{"no-scripts", no_argument, NULL, 4},
 		{"no-loopback", no_argument, NULL, 5},
-		{"force", no_argument, NULL, 2},
+		{"force", no_argument, NULL, 'f'},
 		{"ignore-errors", no_argument, NULL, 7},
 		{"option", required_argument, NULL, 'o'},
 		{"list", no_argument, NULL, 'l'},
@@ -450,7 +450,7 @@ static void parse_options(int *argc, char **argv[]) {
 	};
 
 	for (;;) {
-		int c = getopt_long(*argc, *argv, "X:s:i:o:hVvnal", long_opts, NULL);
+		int c = getopt_long(*argc, *argv, "X:s:i:o:hVvnalf", long_opts, NULL);
 
 		if (c == EOF)
 			break;
@@ -526,7 +526,7 @@ static void parse_options(int *argc, char **argv[]) {
 			run_mappings = false;
 			break;
 
-		case 2: /* --force */
+		case 'f': /* --force */
 			if ((cmds == iface_list) || (cmds == iface_query))
 				usage();
 			force = true;

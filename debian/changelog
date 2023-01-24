@@ -1,3 +1,86 @@
+ifupdown (0.8.41) unstable; urgency=high
+
+  * networking.service: Improve how to handle hotplug devices. Thanks to kibi,
+    Oleg A. Arkhangelsky <sysoleg@yandex.ru>, et al.
+    (Closes: #1022843, #1029449)
+  * d/tests/hotplug: add more tests, including unplugged dummy interface
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Tue, 24 Jan 2023 14:07:32 +0100
+
+ifupdown (0.8.40) unstable; urgency=medium
+
+  [ Colin Watson ]
+  * Clarify formatting of post-up and pre-down aliases in interfaces(5).
+
+  [ Vincent Bernat ]
+  * Kill dhclient on down for inet6 auto method. (Closes: #1000180)
+
+  [ Santiago Ruano Rincón ]
+  * networking.service: Wants ifupdown-pre.service instead of Requiring it.
+    Patch by Ron <ron@debian.org>
+    (Closes: #998088)
+  * networking.service: Add ExecStart=/sbin/ifup -a --allow=hotplug. Patch by
+    "Oleg A. Arkhangelsky" <sysoleg@yandex.ru>
+    (Closes: #1022843)
+  * Update d/copyright and fix Source URL
+
+  [ Marek Vasut ]
+  * Add short -f option for --force long option
+
+  [ Simon Arlott ]
+  * Support IPv6 tunnels (ip6ip6 and ip6gre)
+  * Support encaplimit on IPv6 tunnels
+  * Document and test support for ipip6 tunnels too (IPv4 in IPv6)
+
+  [ Guillem Jover ]
+  * Rework execable() function to accept a filename instead of a pathname
+  * Do not use absolute pathnames when executing commands
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Mon, 16 Jan 2023 14:57:59 +0100
+
+ifupdown (0.8.39) unstable; urgency=low
+
+  * Add execution permission on resolved scripts. Thanks to Vincent Lefèvre
+    (Closes: #1021259)
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Tue, 04 Oct 2022 17:24:23 +0200
+
+ifupdown (0.8.38) unstable; urgency=low
+
+  [ Johannes Schauer Marin Rodrigues ]
+  * Remove dependency on lsb-base (Closes: #1020604)
+
+  [ Santiago Ruano Rincón ]
+  * Remove pump support (no longer in Debian archive)
+  * Fix error message when turning down VLAN interfaces. Thanks to Aleksandr
+    Muravjov (Closes: #1007889)
+  * Ship Ubuntu's integration scripts for systemd-resolved. Thanks to Luca
+    Boccassi (Closes: #1016798)
+  * Add rfkill support. Thanks to Sebastian Reichel <sre@debian.org>
+    (Closes: #645559)
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Mon, 03 Oct 2022 16:24:38 +0200
+
+ifupdown (0.8.37) unstable; urgency=low
+
+  * Add debian/gbp.conf
+  * Acknowledge 0.8.36+nmu1.
+  * Add timeout for IPv6 stateless dhcp. Thanks to Joerg Dorchain <joerg@dorchain.net>
+    (Closes: #947234)
+  * Correctly copy (duplicate) the interface to exclude with --read-environment. Thanks to Adam Stephens <adam.stephens@gmail.com>
+    (Closes: #994745)
+  * Include restart-ms option in can config. Thanks to Joerg Dorchain <joerg@dorchain.net>
+    (Closes: #947233)
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Wed, 19 Jan 2022 20:55:17 +0100
+
+ifupdown (0.8.36+nmu1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Remove harcoded path for /bin/run-parts and /sbin/ip (Closes: #992425)
+
+ -- Christian Marillat <marillat@debian.org>  Thu, 19 Aug 2021 01:33:37 +0200
+
 ifupdown (0.8.36) unstable; urgency=low
 
   [ Janos Lenart ]
@@ -1805,4 +1888,3 @@ ifupdown (0.5.5-1) unstable; urgency=low
   * Split from netbase.
 
  -- Anthony Towns <ajt@debian.org>  Mon, 17 Jul 2000 08:24:56 +1000
-

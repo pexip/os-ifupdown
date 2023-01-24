@@ -19,24 +19,26 @@ method none
         if test `cat /sys/class/net/%link%/type` -eq 32; then \
             echo 0x%vlan_id1% > /sys/class/net/%link%/create_child; \
         else \
-            /sbin/ip link set up dev %link%; \
-            /sbin/ip link add link %link% name %iface0% type vlan id %vlan_id%; \
+            ip link set up dev %link%; \
+            ip link add link %link% name %iface0% type vlan id %vlan_id%; \
 	fi; \
     fi if (iface_has("."))
-    -/sbin/ip link set up dev %iface% 2>/dev/null \
+    -ip link set up dev %iface% 2>/dev/null \
 	if (iface_is_lo())
-    [[/sbin/ip link set %iface0% alias "%description%"]]
+    [[ip link set %iface0% alias "%description%"]]
   down
-    if test `cat /sys/class/net/%link%/type` -eq 32; then \
-        echo 0x%vlan_id1% > /sys/class/net/%link%/delete_child; \
+    if test -d /sys/class/net/%link%/device/infiniband; then \
+        if test `cat /sys/class/net/%link%/type` -eq 32; then \
+            echo 0x%vlan_id1% > /sys/class/net/%link%/delete_child; \
+        fi \
     else \
-        /sbin/ip link del %iface%; \
+        ip link del %iface%; \
     fi if (iface_has(".") && !iface_has(":"))
-    -/sbin/ip link set down dev %iface% 2>/dev/null \
+    -ip link set down dev %iface% 2>/dev/null \
 	if (iface_is_lo())
-    [[-test -n "%description%" && /sbin/ip link set %iface0% alias ""]]
+    [[-test -n "%description%" && ip link set %iface0% alias ""]]
   rename
-    /sbin/ip link set %iface% name %newname%
+    ip link set %iface% name %newname%
 
 architecture kfreebsd
 
@@ -47,17 +49,17 @@ method none
     description description -- Link description []
 
   up
-    -/sbin/ifconfig %iface% 127.0.0.1 up \
+    -ifconfig %iface% 127.0.0.1 up \
 	if (iface_is_lo())
-    -/sbin/ifconfig %iface% inet6 ::1 \
+    -ifconfig %iface% inet6 ::1 \
 	if (iface_is_lo())
-    [[-/sbin/ifconfig %iface% desc "%description%"]]
+    [[-ifconfig %iface% desc "%description%"]]
   down
-    -/sbin/ifconfig %iface% down \
+    -ifconfig %iface% down \
 	if (iface_is_lo())
-    [[-test -n "%description%" && /sbin/ifconfig %iface% -desc]]
+    [[-test -n "%description%" && ifconfig %iface% -desc]]
   rename
-    /sbin/ifconfig %iface% name %newname%
+    ifconfig %iface% name %newname%
 
 architecture hurd
 

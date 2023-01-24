@@ -2,30 +2,46 @@
 # check behaviour of "allow-hotplug" interface
 set -e
 
-IFACE=sdtest42
+date -R
 
-if [ -e /sys/class/net/$IFACE ]; then
-    echo "SKIP: network interface $IFACE already exists"
-    exit 0
+IFACE=sdtest42
+IFACE_DUMMY=ethdummy0
+
+if [ -z "$AUTOPKGTEST_REBOOT_MARK" ]; then
+    if [ -e /sys/class/net/$IFACE ]; then
+        echo "SKIP: network interface $IFACE already exists"
+        exit 0
+    fi
 fi
 
 # different kinds of installs/images have different conventions; e. g.
 # cloud-init sources *.cfg, a Debian desktop sources only prefix-less files
 if grep -q 'source-directory .*interfaces.d' /etc/network/interfaces; then
     IFACE_CFG=/etc/network/interfaces.d/${IFACE}
+    IFACE_DUMMY_CFG=/etc/network/interfaces.d/${IFACE_DUMMY}
 elif grep -q 'source .*interfaces.d.*cfg' /etc/network/interfaces; then
     IFACE_CFG=/etc/network/interfaces.d/${IFACE}.cfg
+    IFACE_DUMMY_CFG=/etc/network/interfaces.d/${IFACE_DUMMY}.cfg
+elif grep -q 'source .*interfaces.d.*conf' /etc/network/interfaces; then
+    IFACE_CFG=/etc/network/interfaces.d/${IFACE}.conf
+    IFACE_DUMMY_CFG=/etc/network/interfaces.d/${IFACE_DUMMY}.conf
 else
-    echo "SKIP: /etc/network/interfaces does not include interfaces.d/"
-    exit 0
+    echo "making /etc/network/interfaces source /e/n/interfaces.d/*.conf"
+cat <<EOF > /etc/network/interfaces
+source /etc/network/interfaces.d/*.conf
+EOF
+    IFACE_CFG=/etc/network/interfaces.d/${IFACE}.conf
+    IFACE_DUMMY_CFG=/etc/network/interfaces.d/${IFACE_DUMMY}.conf
 fi
 
+if [ -z "$AUTOPKGTEST_REBOOT_MARK" ]; then
 cat <<EOF > $IFACE_CFG
 allow-hotplug $IFACE
 iface $IFACE inet static
     address 192.168.234.129
     netmask 255.255.255.0
 EOF
+fi
 
 # these should trigger uevents and ifup@.service
 ip link add name $IFACE type veth peer name v$IFACE
@@ -58,3 +74,42 @@ if echo "$OUT" | grep -q 'inet'; then
     echo "$OUT" >&2
     exit 1
 fi
+
+echo "restarting network"
+systemctl restart networking
+
+sleep 3
+
+echo "stop"
+systemctl stop networking
+
+if [ -z "$AUTOPKGTEST_REBOOT_MARK" ]; then
+    echo "adding a dummy unplugged interface"
+cat <<EOF > $IFACE_DUMMY_CFG
+allow-hotplug $IFACE_DUMMY
+iface $IFACE_DUMMY inet dhcp
+EOF
+fi
+
+echo "start"
+systemctl start networking
+
+ip link show
+
+ip a
+
+echo "query"
+ifquery $IFACE_DUMMY
+echo "query state"
+! ifquery --state $IFACE_DUMMY
+if [ -d /run/systemd/system ]; then
+    ! systemctl status -l ifup@${IFACE_DUMMY}.service
+fi
+
+date -R
+
+if [ -z "$AUTOPKGTEST_REBOOT_MARK" ]; then
+    echo "preparing to reboot"; /tmp/autopkgtest-reboot mark1
+fi
+
+echo "test end"

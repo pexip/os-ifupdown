@@ -13,7 +13,8 @@ method static
     listenonly listenonly	-- listen only mode (on|off)
     triple triple		-- activate triple sampling (on|off)
     oneshot oneshot		-- one shot mode (on|off)
-    berr berr			-- activate berr reporting (on|off) 
+    berr berr			-- activate berr reporting (on|off)
+    restart-ms restart-ms	-- restart-ms (0..)
 
   up
     ip link set %iface% type can bitrate %bitrate%
@@ -22,6 +23,7 @@ method static
     [[ ip link set %iface% type can triple-sampling %triple% ]]
     [[ ip link set %iface% type can one-shot %oneshot% ]]
     [[ ip link set %iface% type can berr-reporting %berr% ]]
+    [[ ip link set %iface% type can restart-ms %restart-ms% ]]
     ip link set %iface% up
 
   down

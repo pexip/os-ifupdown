@@ -1,0 +1,43 @@
+# RUN: --no-loopback tunnel1
+iface tunnel1 inet6 tunnel
+  address fd00::1
+  netmask 48
+  mode ip6ip6
+  endpoint 2001:db8::2
+  local 2001:db8::1
+  encaplimit none
+
+# RUN: --no-loopback tunnel2
+iface tunnel2 inet6 tunnel
+  address fd00::1
+  netmask 48
+  mode ip6ip6
+  endpoint 2001:db8::2
+  local 2001:db8::1
+  encaplimit none
+  gateway fd00::2
+
+# RUN: --no-loopback tunnel3
+iface tunnel3 inet6 tunnel
+  address 192.0.2.1
+  netmask 24
+  mode ipip6
+  endpoint 2001:db8::2
+  local 2001:db8::1
+
+# RUN: --no-loopback tunnel4
+iface tunnel4 inet6 tunnel
+  address 192.0.2.1
+  netmask 24
+  mode ipip6
+  endpoint 2001:db8::2
+  local 2001:db8::1
+  gateway 192.0.2.2
+
+# RUN: --no-loopback tunnel5
+iface tunnel5 inet6 tunnel
+  address fd00::1
+  netmask 48
+  mode ip6gre
+  endpoint 2001:db8::2
+  local 2001:db8::1

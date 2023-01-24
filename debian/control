@@ -3,7 +3,7 @@ Section: admin
 Priority: important
 Maintainer: Josué Ortega <josue@debian.org>
 Uploaders: Santiago Ruano Rincón <santiago@debian.org>
-Standards-Version: 4.5.0
+Standards-Version: 4.6.1
 Build-Depends: debhelper-compat (= 13)
 Vcs-Git: https://salsa.debian.org/debian/ifupdown.git
 Vcs-Browser: https://salsa.debian.org/debian/ifupdown
@@ -12,7 +12,7 @@ Rules-Requires-Root: no
 Package: ifupdown
 Architecture: any
 Depends: ${net:Depends}, ${shlibs:Depends}, ${misc:Depends},
- lsb-base, adduser,
+ adduser,
  iproute2 [linux-any], freebsd-net-tools [kfreebsd-any], inetutils-tools [hurd-any]
 Recommends: isc-dhcp-client | dhcp-client
 Suggests: ppp, rdnssd, ${net:Suggests}

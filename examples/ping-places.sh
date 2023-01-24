@@ -2,10 +2,10 @@
 
 if [ `id -u` -ne 0 ] || [ "$1" = "" ]; then exit 1; fi
 
-if [ -x /usr/bin/fping ]; then
-	PING="/usr/bin/fping"
+if [ -x "$(command -v fping)" ]; then
+	PING="fping"
 else
-	PING="/bin/ping -c 2"
+	PING="ping -c 2"
 fi
 
 iface="$1"
