@@ -1,0 +1,3 @@
+# run ifupdown for each wlan rfkill change
+ACTION=="change", ENV{RFKILL_TYPE}=="wlan", SUBSYSTEM=="rfkill", \
+RUN+="/usr/local/sbin/ifupdown-rfkill %S %p $env{RFKILL_STATE}"

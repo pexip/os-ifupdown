@@ -1,25 +1,28 @@
 exit code: 0
 ====stdout====
 ====stderr====
+ifdown: configuring interface tunnel1=tunnel1 (inet6)
 run-parts --verbose /etc/network/if-down.d
-ifdown: configuring interface eth2=eth2 (inet)
-run-parts --verbose /etc/network/if-down.d
-ip -4 addr flush dev eth2 2>/dev/null || true
+ip -6 tunnel del tunnel1
 run-parts --verbose /etc/network/if-post-down.d
 
-ifdown: configuring interface eth1=eth1 (inet)
+ifdown: configuring interface tunnel2=tunnel2 (inet6)
 run-parts --verbose /etc/network/if-down.d
-ip -4 addr flush dev eth1 2>/dev/null || true
+ip -6 tunnel del tunnel2
 run-parts --verbose /etc/network/if-post-down.d
 
-ifdown: configuring interface eth0=eth0 (inet)
+ifdown: configuring interface tunnel3=tunnel3 (inet6)
 run-parts --verbose /etc/network/if-down.d
-ip -4 addr flush dev eth0 2>/dev/null || true
+ip -6 tunnel del tunnel3
 run-parts --verbose /etc/network/if-post-down.d
 
-ifdown: configuring interface lo=lo (inet)
+ifdown: configuring interface tunnel4=tunnel4 (inet6)
 run-parts --verbose /etc/network/if-down.d
+ip -6 tunnel del tunnel4
 run-parts --verbose /etc/network/if-post-down.d
-ip link set down dev lo 2>/dev/null
 
+ifdown: configuring interface tunnel5=tunnel5 (inet6)
+run-parts --verbose /etc/network/if-down.d
+ip -6 tunnel del tunnel5
 run-parts --verbose /etc/network/if-post-down.d
+

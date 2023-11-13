@@ -2,8 +2,7 @@
 Description=Raise network interfaces
 Documentation=man:interfaces(5)
 DefaultDependencies=no
-Requires=ifupdown-pre.service
-Wants=network.target
+Wants=network.target ifupdown-pre.service
 After=local-fs.target network-pre.target apparmor.service systemd-sysctl.service systemd-modules-load.service ifupdown-pre.service
 Before=network.target shutdown.target network-online.target
 Conflicts=shutdown.target
@@ -16,6 +15,8 @@ WantedBy=network-online.target
 Type=oneshot
 EnvironmentFile=-/etc/default/networking
 ExecStart=/sbin/ifup -a --read-environment
+ExecStart=-/bin/sh -c 'if [ -f /run/network/restart-hotplug ]; then /sbin/ifup -a --read-environment --allow=hotplug; fi'
 ExecStop=/sbin/ifdown -a --read-environment --exclude=lo
+ExecStopPost=/usr/bin/touch /run/network/restart-hotplug
 RemainAfterExit=true
 TimeoutStartSec=5min

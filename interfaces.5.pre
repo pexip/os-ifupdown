@@ -346,9 +346,7 @@ prints an error message,
 and exits with status 0.
 This behavior may change in the future.
 .TP
-.BI up " command"
-.TP
-.BI post\-up " command"
+\fBup\fR \fIcommand\fR, \fBpost\-up\fR \fIcommand
 Run
 .I command
 after bringing the interface up.
@@ -361,9 +359,7 @@ prints an error message,
 and exits with status 0.
 This behavior may change in the future.
 .TP
-.BI down " command"
-.TP
-.BI pre\-down " command"
+\fBdown\fR \fIcommand\fR, \fBpre\-down\fR \fIcommand\fR
 Run
 .I command
 before taking the interface down.

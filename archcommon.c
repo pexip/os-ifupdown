@@ -23,13 +23,59 @@ bool _iface_has(const char *iface, const char *delims) {
 	return (token != NULL);
 }
 
-bool execable(const char *program) {
+static bool file_is_exec(const char *program) {
 	struct stat buf;
 
 	if (0 == stat(program, &buf))
 		if (S_ISREG(buf.st_mode) && (S_IXUSR & buf.st_mode))
 			return true;
 
+	return false;
+}
+
+bool execable(const char *program) {
+	char *filename = NULL;
+	const char *path_list;
+	const char *path, *path_end;
+	size_t path_len;
+
+	if (program[0] == '/')
+		return file_is_exec(program);
+
+	path_list = getenv("PATH");
+	if (!path_list)
+		return false;
+
+	/*
+	 * We allocate based on the length of PATH and the program name we
+	 * are looking for (plus one byte for the terminating NUL, and a
+	 * potential "/"), as we take PATH apart into pieces and thus the
+	 * resulting length cannot be greater than that. This avoids having
+	 * to realloc() within the loop.
+	 */
+	filename = malloc(strlen(path_list) + strlen(program) + 2);
+	if (!filename)
+		err(1, "malloc");
+
+	for (path = path_list; path; path = path_end ? path_end + 1 : NULL) {
+		path_end = strchr(path, ':');
+		path_len = path_end ? (size_t)(path_end - path) : strlen(path);
+
+		filename[0] = '\0';
+		strncat(filename, path, path_len);
+		if (path_len)
+			strcat(filename + path_len, "/");
+		/* Append at the end regardless of whether we have added a
+		 * trailing "/". */
+		strcat(filename + path_len, program);
+
+		if (file_is_exec(filename)) {
+			free(filename);
+			return true;
+		}
+	}
+
+	free(filename);
 	return false;
 }
 

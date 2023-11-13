@@ -11,7 +11,7 @@ WAIT_ONLINE_TIMEOUT=300
 case "$WAIT_ONLINE_METHOD" in
 route)
 	[ -n "$WAIT_ONLINE_ADDRESS" ] || WAIT_ONLINE_ADDRESS=default
-	(/usr/bin/timeout "$WAIT_ONLINE_TIMEOUT" /sbin/ip mon r & /sbin/ip -4 r s; /sbin/ip -6 r s) | /bin/grep -q "^$WAIT_ONLINE_ADDRESS\>"
+	(timeout "$WAIT_ONLINE_TIMEOUT" ip mon r & ip -4 r s; ip -6 r s) | grep -q "^$WAIT_ONLINE_ADDRESS\>"
 	;;
 
 ping)
@@ -19,7 +19,7 @@ ping)
 		echo "No WAIT_ONLINE_ADDRESS specified" >&2
 		exit 1
 	fi
-	/usr/bin/timeout "$WAIT_ONLINE_TIMEOUT" /bin/sh -c 'while ! /bin/ping -q -c 1 -W 1 "'$WAIT_ONLINE_ADDRESS'" >/dev/null; do sleep 1; done'
+	timeout "$WAIT_ONLINE_TIMEOUT" sh -c 'while ! ping -q -c 1 -W 1 "'$WAIT_ONLINE_ADDRESS'" >/dev/null; do sleep 1; done'
 	;;
 
 ping6)
@@ -27,19 +27,19 @@ ping6)
 		echo "No WAIT_ONLINE_ADDRESS specified" >&2
 		exit 1
 	fi
-	/usr/bin/timeout "$WAIT_ONLINE_TIMEOUT" /bin/sh -c 'while ! /bin/ping6 -q -c 1 -W 1 "'$WAIT_ONLINE_ADDRESS'" >/dev/null; do sleep 1; done'
+	timeout "$WAIT_ONLINE_TIMEOUT" sh -c 'while ! ping6 -q -c 1 -W 1 "'$WAIT_ONLINE_ADDRESS'" >/dev/null; do sleep 1; done'
 	;;
 
 ifup|iface|interface)
 	up=false
 	if [ -z "$WAIT_ONLINE_IFACE" ]; then
-		auto_list="$(/sbin/ifquery -X lo --list)"
-		hotplug_list="$(/sbin/ifquery -X lo --allow=hotplug --list)"
+		auto_list="$(ifquery -X lo --list)"
+		hotplug_list="$(ifquery -X lo --allow=hotplug --list)"
 		if [ -n "$auto_list" ]; then
 			for i in $(seq 1 $WAIT_ONLINE_TIMEOUT); do
 				up=true
 				for iface in $auto_list; do
-					if ! /sbin/ifquery --state $iface >/dev/null; then
+					if ! ifquery --state $iface >/dev/null; then
 						up=false
 						break
 					fi
@@ -51,7 +51,7 @@ ifup|iface|interface)
 			done
 		elif [ -n "$hotplug_list" ]; then
 			for i in $(seq 1 $WAIT_ONLINE_TIMEOUT); do
-				if [ -n "$(/sbin/ifquery --state $hotplug_list)" ]; then
+				if [ -n "$(ifquery --state $hotplug_list)" ]; then
 					up=true
 					break
 				fi
@@ -62,7 +62,7 @@ ifup|iface|interface)
 		fi
 	else
 		for i in $(seq 1 $WAIT_ONLINE_TIMEOUT); do
-			if [ -n "$(/sbin/ifquery --state $WAIT_ONLINE_IFACE)" ]; then
+			if [ -n "$(ifquery --state $WAIT_ONLINE_IFACE)" ]; then
 				up=true
 				break
 			fi

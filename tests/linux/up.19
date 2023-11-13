@@ -1,0 +1,43 @@
+exit code: 0
+====stdout====
+====stderr====
+
+ifup: configuring interface tunnel1=tunnel1 (inet6)
+run-parts --exit-on-error --verbose /etc/network/if-pre-up.d
+ip -6 tunnel add tunnel1 mode ip6ip6 remote 2001:db8::2 local 2001:db8::1         encaplimit none
+ip link set tunnel1 up 
+ip -6 addr add fd00::1/48 dev tunnel1  
+
+run-parts --exit-on-error --verbose /etc/network/if-up.d
+
+ifup: configuring interface tunnel2=tunnel2 (inet6)
+run-parts --exit-on-error --verbose /etc/network/if-pre-up.d
+ip -6 tunnel add tunnel2 mode ip6ip6 remote 2001:db8::2 local 2001:db8::1         encaplimit none
+ip link set tunnel2 up 
+ip -6 addr add fd00::1/48 dev tunnel2  
+ip -6 route add ::/0 via fd00::2  dev tunnel2 onlink 
+run-parts --exit-on-error --verbose /etc/network/if-up.d
+
+ifup: configuring interface tunnel3=tunnel3 (inet6)
+run-parts --exit-on-error --verbose /etc/network/if-pre-up.d
+ip -6 tunnel add tunnel3 mode ipip6 remote 2001:db8::2 local 2001:db8::1         
+ip link set tunnel3 up 
+ip -4 addr add 192.0.2.1/24 dev tunnel3  
+
+run-parts --exit-on-error --verbose /etc/network/if-up.d
+
+ifup: configuring interface tunnel4=tunnel4 (inet6)
+run-parts --exit-on-error --verbose /etc/network/if-pre-up.d
+ip -6 tunnel add tunnel4 mode ipip6 remote 2001:db8::2 local 2001:db8::1         
+ip link set tunnel4 up 
+ip -4 addr add 192.0.2.1/24 dev tunnel4  
+ip -4 route add 0.0.0.0/0 via 192.0.2.2  dev tunnel4 onlink 
+run-parts --exit-on-error --verbose /etc/network/if-up.d
+
+ifup: configuring interface tunnel5=tunnel5 (inet6)
+run-parts --exit-on-error --verbose /etc/network/if-pre-up.d
+ip -6 tunnel add tunnel5 mode ip6gre remote 2001:db8::2 local 2001:db8::1         
+ip link set tunnel5 up 
+ip -6 addr add fd00::1/48 dev tunnel5  
+
+run-parts --exit-on-error --verbose /etc/network/if-up.d

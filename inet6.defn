@@ -21,35 +21,39 @@ method auto
     ll-interval            -- Link-local address polling interval in seconds [0.1]
 
   up
-    /sbin/modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
-    -[[/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.use_tempaddr=%privext%]]
-    -/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.accept_ra=%accept_ra%
-    -/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.autoconf=1
-    /sbin/ip addr flush dev %iface% mngtmpaddr \
+    modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
+    -[[sysctl -q -e -w net.ipv6.conf.%iface/.//%.use_tempaddr=%privext%]]
+    -sysctl -q -e -w net.ipv6.conf.%iface/.//%.accept_ra=%accept_ra%
+    -sysctl -q -e -w net.ipv6.conf.%iface/.//%.autoconf=1
+    ip addr flush dev %iface% mngtmpaddr \
         if (var_set("accept_ra", ifd) && !var_true("accept_ra", ifd))
-    /sbin/ip link set dev %iface% up
+    ip link set dev %iface% up
     /lib/ifupdown/wait-for-ll6.sh if (var_true("dhcp", ifd) && execable("/lib/ifupdown/wait-for-ll6.sh"))
-    /sbin/dhclient -6 -v -P -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        if (var_true("dhcp", ifd) && execable("/sbin/dhclient") && var_true("request_prefix", ifd))
-    /sbin/dhclient -6 -v -S -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        elsif (var_true("dhcp", ifd) && execable("/sbin/dhclient"))
+    dhclient -6 -v -P -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        if (var_true("dhcp", ifd) && execable("dhclient") && var_true("request_prefix", ifd))
+    dhclient -6 -1 -v -S -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        elsif (var_true("dhcp", ifd) && execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (var_true("dhcp", ifd))
 
   down
-    /sbin/ip -6 addr flush dev %iface% scope global
-    /sbin/ip link set dev %iface% down \
+    dhclient -6 -v -r -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        if (var_true("dhcp", ifd) && execable("dhclient"))
+    echo 'No DHCPv6 client software found!' >&2; false \
+        elsif (var_true("dhcp", ifd))
+    ip -6 addr flush dev %iface% scope global
+    ip link set dev %iface% down \
 		if (iface_is_link())
 
 method loopback
   description
     This method may be used to define the IPv6 loopback interface.
   up
-    -/sbin/ip link set dev %iface% up 2>/dev/null if (!iface_is_lo())
-    -/sbin/ip addr add dev %iface% ::1 2>/dev/null if (!iface_is_lo())
+    -ip link set dev %iface% up 2>/dev/null if (!iface_is_lo())
+    -ip addr add dev %iface% ::1 2>/dev/null if (!iface_is_lo())
   down
-    -/sbin/ip addr del dev %iface% ::1 2>/dev/null if (!iface_is_lo())
-    -/sbin/ip link set dev %iface% down 2>/dev/null if (!iface_is_lo())
+    -ip addr del dev %iface% ::1 2>/dev/null if (!iface_is_lo())
+    -ip link set dev %iface% down 2>/dev/null if (!iface_is_lo())
 
 method static
   description
@@ -82,27 +86,27 @@ method static
     gateway (if_set 0) =accept_ra?
 
   up
-    /sbin/modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
-    -[[/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.use_tempaddr=%privext%]]
-    -[[/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.accept_ra=%accept_ra%]]
-    -[[/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.autoconf=%autoconf%]]
-    -[[if [ "$(/bin/cat /sys/class/net/%iface%/mtu)" -lt %mtu% ]; then /sbin/ip link set dev %iface% mtu %mtu%; else /sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.mtu=%mtu%; fi]]
-    /sbin/ip addr flush dev %iface% mngtmpaddr \
+    modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
+    -[[sysctl -q -e -w net.ipv6.conf.%iface/.//%.use_tempaddr=%privext%]]
+    -[[sysctl -q -e -w net.ipv6.conf.%iface/.//%.accept_ra=%accept_ra%]]
+    -[[sysctl -q -e -w net.ipv6.conf.%iface/.//%.autoconf=%autoconf%]]
+    -[[if [ "$(cat /sys/class/net/%iface%/mtu)" -lt %mtu% ]; then ip link set dev %iface% mtu %mtu%; else sysctl -q -e -w net.ipv6.conf.%iface/.//%.mtu=%mtu%; fi]]
+    ip addr flush dev %iface% mngtmpaddr \
         if (var_set("accept_ra", ifd) && !var_true("accept_ra", ifd))
-    /sbin/ip link set dev %iface% [[address %hwaddress%]] up
-    /sbin/ip -6 addr add %address%[[/%netmask%]] [[scope %scope%]] dev %iface% [[preferred_lft %preferred-lifetime%]] \
+    ip link set dev %iface% [[address %hwaddress%]] up
+    ip -6 addr add %address%[[/%netmask%]] [[scope %scope%]] dev %iface% [[preferred_lft %preferred-lifetime%]] \
                 if (!var_set("dad-attempts", ifd) || var_true("dad-attempts", ifd))
-    /sbin/ip -6 addr add %address%[[/%netmask%]] [[scope %scope%]] dev %iface% [[preferred_lft %preferred-lifetime%]] nodad \
+    ip -6 addr add %address%[[/%netmask%]] [[scope %scope%]] dev %iface% [[preferred_lft %preferred-lifetime%]] nodad \
                 if (var_set("dad-attempts", ifd) && !var_true("dad-attempts", ifd))
-    [[ /sbin/ip -6 route replace default via %gateway% [[metric %metric%]] dev %iface% onlink ]]
+    [[ ip -6 route replace default via %gateway% [[metric %metric%]] dev %iface% onlink ]]
     /lib/ifupdown/settle-dad.sh if (!no_act_commands && execable("/lib/ifupdown/settle-dad.sh") && (var_true("dad-attempts", ifd)))
 
   down
-    [[ /sbin/ip -6 route del default via %gateway% [[metric %metric%]] dev %iface% ]]
-    /sbin/ip -6 addr del %address%[[/%netmask%]] [[scope %scope%]] dev %iface%
-    /sbin/ip -6 addr flush dev %iface% \
+    [[ ip -6 route del default via %gateway% [[metric %metric%]] dev %iface% ]]
+    ip -6 addr del %address%[[/%netmask%]] [[scope %scope%]] dev %iface%
+    ip -6 addr flush dev %iface% \
     	if (iface_is_link())
-    /sbin/ip link set dev %iface% down \
+    ip link set dev %iface% down \
 		if (iface_is_link())
 
 method manual
@@ -119,14 +123,14 @@ method manual
     hwaddress cleanup_hwaddress
 
   up
-    -[[if [ "$(/bin/cat /sys/class/net/%iface%/mtu)" -lt %mtu% ]; then /sbin/ip link set dev %iface% mtu %mtu%; else /sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.mtu=%mtu%; fi]]
-    [[/sbin/ip link set dev %iface% address %hwaddress%]]
-    /sbin/ip link set dev %iface% up 2>/dev/null || true
+    -[[if [ "$(cat /sys/class/net/%iface%/mtu)" -lt %mtu% ]; then ip link set dev %iface% mtu %mtu%; else sysctl -q -e -w net.ipv6.conf.%iface/.//%.mtu=%mtu%; fi]]
+    [[ip link set dev %iface% address %hwaddress%]]
+    ip link set dev %iface% up 2>/dev/null || true
 
   down
-    /sbin/ip -6 addr flush dev %iface% 2>/dev/null || true \
+    ip -6 addr flush dev %iface% 2>/dev/null || true \
     	if (iface_is_link())
-    /sbin/ip link set dev %iface% down 2>/dev/null || true \
+    ip link set dev %iface% down 2>/dev/null || true \
         if (iface_is_link() || !do_all)
 
 method dhcp
@@ -147,28 +151,61 @@ method dhcp
     hwaddress cleanup_hwaddress
 
   up
-    /sbin/modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
-    -[[/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.accept_ra=%accept_ra%]]
-    -[[/sbin/sysctl -q -e -w net.ipv6.conf.%iface/.//%.autoconf=%autoconf%]]
-    /sbin/ip addr flush dev %iface% mngtmpaddr \
+    modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
+    -[[sysctl -q -e -w net.ipv6.conf.%iface/.//%.accept_ra=%accept_ra%]]
+    -[[sysctl -q -e -w net.ipv6.conf.%iface/.//%.autoconf=%autoconf%]]
+    ip addr flush dev %iface% mngtmpaddr \
         if (var_set("accept_ra", ifd) && !var_true("accept_ra", ifd))
-    /sbin/ip link set dev %iface% [[address %hwaddress%]] up
+    ip link set dev %iface% [[address %hwaddress%]] up
     /lib/ifupdown/wait-for-ll6.sh if (execable("/lib/ifupdown/wait-for-ll6.sh"))
-    /sbin/dhclient -6 -v -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -P -N -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        if (execable("/sbin/dhclient") && var_true("request_prefix", ifd))
-    /sbin/dhclient -6 -v -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        elsif (execable("/sbin/dhclient"))
+    dhclient -6 -v -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -P -N -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        if (execable("dhclient") && var_true("request_prefix", ifd))
+    dhclient -6 -v -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        elsif (execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (1)
 
   down
-    /sbin/dhclient -6 -v -r -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        if (execable("/sbin/dhclient"))
+    dhclient -6 -v -r -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        if (execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (1)
 
-    /sbin/ip link set dev %iface% down \
+    ip link set dev %iface% down \
 		if (iface_is_link())
+
+method tunnel
+  description
+    This method is used to create IP6GRE, IP6IP6 or IPIP6 tunnels. You need to
+    have the *ip* binary from the *iproute* package. For IP6GRE tunnels, you
+    will need to load the ip6_gre module and the ip6_tunnel module for
+    IP6IP6 or IPIP6 tunnels.
+  options
+    address address       -- Local Address (colon delimited)
+    netmask mask          -- Netmask (number of bits, eg 64)
+    mode type             -- Tunnel type (either IP6GRE, IP6IP6 or IPIP6) *required*
+    endpoint address      -- Address of other tunnel endpoint (colon delimited) *required*
+    dstaddr address       -- Remote address (remote address inside tunnel)
+    local address         -- Address of the local endpoint (colon delimited)
+    metric metric         -- Routing metric for default gateway (integer)
+    gateway address       -- Default gateway (colon delimited)
+    ttl time              -- TTL setting
+    mtu size              -- MTU size
+    encaplimit limit      -- Encapsulation limit ("none" or integer)
+  up
+    ip -6 tunnel add %iface% mode %mode% remote %endpoint% [[local %local%]] \
+       [[ttl %ttl%]] [[encaplimit %encaplimit%]]
+    ip link set %iface% up [[mtu %mtu%]]
+    [[ip -4 addr add %address%/%netmask% dev %iface% [[peer %dstaddr%]] ]] \
+      if (!var_strcasecmp("mode", "ipip6"))
+    [[ip -4 route add 0.0.0.0/0 via %gateway% [[metric %metric%]] dev %iface% onlink ]] \
+      if (!var_strcasecmp("mode", "ipip6"))
+    [[ip -6 addr add %address%/%netmask% dev %iface% [[peer %dstaddr%]] ]] \
+      if (var_strcasecmp("mode", "ipip6"))
+    [[ip -6 route add ::/0 via %gateway% [[metric %metric%]] dev %iface% onlink ]] \
+      if (var_strcasecmp("mode", "ipip6"))
+  down
+    ip -6 tunnel del %iface%
 
 method v4tunnel
   description
@@ -192,16 +229,16 @@ method v4tunnel
     preferred-lifetime set_preferred_lft
 
   up
-    /sbin/modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
-    /sbin/ip tunnel add %iface% mode sit remote %endpoint% [[local %local%]] \
+    modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
+    ip tunnel add %iface% mode sit remote %endpoint% [[local %local%]] \
        [[ttl %ttl%]]
-    /sbin/ip link set %iface% up [[mtu %mtu%]]
-    [[ /sbin/ip addr add %address%[[/%netmask%]] dev %iface% [[preferred_lft %preferred-lifetime%]] ]]
-    [[ /sbin/ip route add %gateway% dev %iface% ]]
-    [[ /sbin/ip route add ::/0 via %gateway% [[metric %metric%]] dev %iface% onlink ]]
+    ip link set %iface% up [[mtu %mtu%]]
+    [[ ip addr add %address%[[/%netmask%]] dev %iface% [[preferred_lft %preferred-lifetime%]] ]]
+    [[ ip route add %gateway% dev %iface% ]]
+    [[ ip route add ::/0 via %gateway% [[metric %metric%]] dev %iface% onlink ]]
 
   down
-    /sbin/ip tunnel del %iface%
+    ip tunnel del %iface%
 
 method 6to4
   description
@@ -221,17 +258,17 @@ method 6to4
     preferred-lifetime set_preferred_lft
 
   up
-    /sbin/modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
-    /sbin/ip tunnel add %iface% mode sit remote any local %local% \
+    modprobe -q net-pf-10 > /dev/null 2>&1 || true # ignore failure.
+    ip tunnel add %iface% mode sit remote any local %local% \
        [[ttl %ttl%]]
-    /sbin/ip link set %iface% up [[mtu %mtu%]]
-    /sbin/ip addr add 2002:%hexaddress%::1/16 dev %iface% [[preferred_lft %preferred-lifetime%]]
-    /sbin/ip route add 2000::/3 via ::192.88.99.1 [[metric %metric%]] dev %iface%
+    ip link set %iface% up [[mtu %mtu%]]
+    ip addr add 2002:%hexaddress%::1/16 dev %iface% [[preferred_lft %preferred-lifetime%]]
+    ip route add 2000::/3 via ::192.88.99.1 [[metric %metric%]] dev %iface%
 
   down
-    /sbin/ip -6 route flush dev %iface%
-    /sbin/ip link set dev %iface% down
-    /sbin/ip tunnel del %iface%
+    ip -6 route flush dev %iface%
+    ip link set dev %iface% down
+    ip tunnel del %iface%
 
 
 architecture kfreebsd
@@ -240,10 +277,10 @@ method loopback
   description
     This method may be used to define the IPv6 loopback interface.
   up
-    /sbin/ifconfig %iface% inet6 ::1 \
+    ifconfig %iface% inet6 ::1 \
 	if (!iface_is_lo())
   down
-    /sbin/ifconfig %iface% down \
+    ifconfig %iface% down \
 	if (!iface_is_lo())
 
 method static
@@ -263,14 +300,14 @@ method static
     hwaddress cleanup_hwaddress
 
   up
-    /sbin/ifconfig %iface% [[media %media%]] [[link %hwaddress%]] [[mtu %mtu%]] up
-    /sbin/ifconfig %iface% inet6 %address%[[/%netmask%]] alias
-    [[ /sbin/route add -inet6 ::/0 %gateway% ]]
+    ifconfig %iface% [[media %media%]] [[link %hwaddress%]] [[mtu %mtu%]] up
+    ifconfig %iface% inet6 %address%[[/%netmask%]] alias
+    [[ route add -inet6 ::/0 %gateway% ]]
 
   down
-    [[ /sbin/route -n del -inet6 ::/0 2>&1 1>/dev/null || true ]]
-    [[ /sbin/ifconfig %iface% inet6 %address% -alias ]]
-    /sbin/ifconfig %iface% down
+    [[ route -n del -inet6 ::/0 2>&1 1>/dev/null || true ]]
+    [[ ifconfig %iface% inet6 %address% -alias ]]
+    ifconfig %iface% down
 
 method manual
   description
@@ -300,14 +337,14 @@ method auto
     hwaddress cleanup_hwaddress
 
   up
-    /sbin/ifconfig %iface% inet6 accept_rtadv up
-    /sbin/dhclient -6 -S -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        if (var_true("dhcp", ifd) && execable("/sbin/dhclient"))
+    ifconfig %iface% inet6 accept_rtadv up
+    dhclient -6 -S -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        if (var_true("dhcp", ifd) && execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (var_true("dhcp", ifd))
 
   down
-    /sbin/ifconfig %iface% down
+    ifconfig %iface% down
 
 
 
@@ -324,19 +361,19 @@ method dhcp
     hwaddress cleanup_hwaddress
 
   up
-    /sbin/ifconfig %iface% [[link %hwaddress%]] up
-    /sbin/dhclient -6 -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        if (execable("/sbin/dhclient"))
+    ifconfig %iface% [[link %hwaddress%]] up
+    dhclient -6 -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        if (execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (1)
 
   down
-    /sbin/dhclient -6 -r -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
-        if (execable("/sbin/dhclient"))
+    dhclient -6 -r -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
+        if (execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (1)
 
-    /sbin/ifconfig %iface% down
+    ifconfig %iface% down
 
 architecture hurd
 
@@ -397,14 +434,14 @@ method dhcp
   up
     [[Warning: Option hwaddress: %hwaddress% not yet supported]]
     inetutils-ifconfig --interface %iface% --up
-    /sbin/dhclient -6 -pf /run/dhclient6.%iface///.%.pid -lf /var/lib/dhcp/dhclient6.%iface///.%.leases -I -df /var/lib/dhcp/dhclient.%iface///.%.leases %iface% \
-        if (execable("/sbin/dhclient"))
+    dhclient -6 -pf /run/dhclient6.%iface///.%.pid -lf /var/lib/dhcp/dhclient6.%iface///.%.leases -I -df /var/lib/dhcp/dhclient.%iface///.%.leases %iface% \
+        if (execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (1)
 
   down
-    /sbin/dhclient -6 -r -pf /run/dhclient6.%iface///.%.pid -lf /var/lib/dhcp/dhclient6.%iface///.%.leases -I -df /var/lib/dhcp/dhclient.%iface///.%.leases %iface% \
-        if (execable("/sbin/dhclient"))
+    dhclient -6 -r -pf /run/dhclient6.%iface///.%.pid -lf /var/lib/dhcp/dhclient6.%iface///.%.leases -I -df /var/lib/dhcp/dhclient.%iface///.%.leases %iface% \
+        if (execable("dhclient"))
     echo 'No DHCPv6 client software found!' >&2; false \
         elsif (1)
 

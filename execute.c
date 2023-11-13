@@ -178,7 +178,7 @@ static int execute_scripts(interface_defn *ifd, execfn *exec, char *opt) {
 
 
 	char *command;
-	if(asprintf(&command, "/bin/run-parts %s%s/etc/network/if-%s.d", ignore_failures ? "" : "--exit-on-error ", verbose ? "--verbose " : "", opt) == -1)
+	if(asprintf(&command, "run-parts %s%s/etc/network/if-%s.d", ignore_failures ? "" : "--exit-on-error ", verbose ? "--verbose " : "", opt) == -1)
 		err(1, "asprintf");
 
 	int result = (*exec) (command);

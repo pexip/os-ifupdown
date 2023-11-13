@@ -1,17 +1,17 @@
 exit code: 0
 ====stdout====
 ====stderr====
-/bin/run-parts --verbose /etc/network/if-down.d
+run-parts --verbose /etc/network/if-down.d
 ifdown: configuring interface eth0=eth0 (inet)
-/bin/run-parts --verbose /etc/network/if-down.d
+run-parts --verbose /etc/network/if-down.d
 
-/sbin/ifconfig eth0 down
-/bin/run-parts --verbose /etc/network/if-post-down.d
+ifconfig eth0 down
+run-parts --verbose /etc/network/if-post-down.d
 ifdown: configuring interface eth0=eth0 (inet6)
-/bin/run-parts --verbose /etc/network/if-down.d
- /sbin/route -n del -inet6 ::/0 2>&1 1>/dev/null || true 
- /sbin/ifconfig eth0 inet6 3ffe:ffff:100:f101::1 -alias 
-/sbin/ifconfig eth0 down
-/bin/run-parts --verbose /etc/network/if-post-down.d
+run-parts --verbose /etc/network/if-down.d
+ route -n del -inet6 ::/0 2>&1 1>/dev/null || true 
+ ifconfig eth0 inet6 3ffe:ffff:100:f101::1 -alias 
+ifconfig eth0 down
+run-parts --verbose /etc/network/if-post-down.d
 
-/bin/run-parts --verbose /etc/network/if-post-down.d
+run-parts --verbose /etc/network/if-post-down.d
