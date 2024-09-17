@@ -1,3 +1,43 @@
+ifupdown (0.8.44) unstable; urgency=low
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster (oldstable)
+
+  [ MichaIng ]
+  * Remove Conflicts=shutdown.target from ifup@.service
+  * Remove obsolete workaround from ifup@.service
+
+  [ Martin-Éric RACINE ]
+  * [control] Recommends from isc-dhcp-client to dhcpcd-base
+
+  [ Santiago Ruano Rincón ]
+  * Change Maintainer to the Networking team
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Tue, 17 Sep 2024 09:08:12 -0300
+
+ifupdown (0.8.43) unstable; urgency=medium
+
+  * Install remaining /lib files in /usr, by setting PKGLIBDIR in
+    debian/rules. Thanks to Helmut Grohne
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Tue, 12 Mar 2024 08:45:09 -0300
+
+ifupdown (0.8.42) unstable; urgency=medium
+
+  [ Uwe Kleine-König ]
+  * Fix if-up.d/resolved hook to properly work with nameservers and search
+    domains. Thanks to Dmytro Kolesnykov and Ken Milmore for the bug report
+    and a proposed patch. (Closes: #1031236)
+
+  [ Guillem Jover ]
+  * Use relative names when executing programs
+
+  [ Santiago Ruano Rincón ]
+  * DEP17: Move files to /usr. Thanks to Helmut Grohne <helmut@subdivi.de>
+    (Closes: #1059919)
+
+ -- Santiago Ruano Rincón <santiago@debian.org>  Sun, 10 Mar 2024 17:17:50 -0300
+
 ifupdown (0.8.41) unstable; urgency=high
 
   * networking.service: Improve how to handle hotplug devices. Thanks to kibi,
@@ -521,7 +561,7 @@ ifupdown (0.8) unstable; urgency=medium
     Closes: 806673
   * Add a systemd service file.
 
-  [ Andrew Shadura ]
+  [ Andrej Shadura ]
   * Implement interface inheritance using the "inherits" keyword.
 
   [ Jérémy Bobbio ]
@@ -536,7 +576,7 @@ ifupdown (0.8) unstable; urgency=medium
 ifupdown (0.7.54) unstable; urgency=medium
 
   [ Guus Sliepen ]
-  * Adopting this package from Andrew Shadura. Closes: #786902
+  * Adopting this package from Andrej Shadura. Closes: #786902
   * Converted the Mercurial repository to Git.
   * Clean up the source code (indentation, whitespace, remove some
     duplication, fix some warnings from cppcheck, clang, use C99, use const
@@ -562,21 +602,21 @@ ifupdown (0.7.53.1) unstable; urgency=medium
 
   * Update tests.
 
- -- Andrew Shadura <andrewsh@debian.org>  Fri, 13 Mar 2015 13:18:59 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Fri, 13 Mar 2015 13:18:59 +0100
 
 ifupdown (0.7.53) unstable; urgency=medium
 
   * Default accept_ra to 0 when gateway is set (Closes: #775660).
   * Don't try to parse a non-existing file given by wordexp (Closes: #776578).
 
- -- Andrew Shadura <andrewsh@debian.org>  Fri, 13 Mar 2015 08:55:42 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Fri, 13 Mar 2015 08:55:42 +0100
 
 ifupdown (0.7.52) unstable; urgency=medium
 
   * Fix segfault when /e/n/i can't be read. Fail only when the file
     has errors, issue a warning when it can't be opened (Closes: #774212).
 
- -- Andrew Shadura <andrewsh@debian.org>  Sun, 04 Jan 2015 15:21:25 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Sun, 04 Jan 2015 15:21:25 +0100
 
 ifupdown (0.7.51) unstable; urgency=medium
 
@@ -584,11 +624,11 @@ ifupdown (0.7.51) unstable; urgency=medium
   * Check the hotplug interface operstate to avoid blocking the
     boot process (Closes: #771943).
 
- -- Andrew Shadura <andrewsh@debian.org>  Sun, 14 Dec 2014 12:34:19 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Sun, 14 Dec 2014 12:34:19 +0100
 
 ifupdown (0.7.50) unstable; urgency=medium
 
-  [ Andrew Shadura ]
+  [ Andrej Shadura ]
   * Configure the loopback interface by default only if user hasn't
     defined their own loopback interface (Closes: #709378).
   * Update udhcp command-line options (Closes: #741579).
@@ -599,11 +639,11 @@ ifupdown (0.7.50) unstable; urgency=medium
   * Call "udev settle" explicitly before configuring any devices (Closes:
     #766943).
 
- -- Andrew Shadura <andrewsh@debian.org>  Sat, 29 Nov 2014 14:32:32 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Sat, 29 Nov 2014 14:32:32 +0100
 
 ifupdown (0.7.49) unstable; urgency=medium
 
-  [ Andrew Shadura ]
+  [ Andrej Shadura ]
   * Proper implementation of auto on kFreeBSD (Closes: #738942).
   * Don't fail on sysctl failing (Closes: #757937).
   * Accept router advertisements when using DHCPv6 (Closes: #753580).
@@ -612,14 +652,14 @@ ifupdown (0.7.49) unstable; urgency=medium
   [ Stéphane Graber ]
   * Upstart job tweaks.
 
- -- Andrew Shadura <andrewsh@debian.org>  Tue, 23 Sep 2014 17:39:51 +0200
+ -- Andrej Shadura <andrewsh@debian.org>  Tue, 23 Sep 2014 17:39:51 +0200
 
 ifupdown (0.7.48.1) unstable; urgency=low
 
   * Add --ignore-errors option.
   * Handle errors correctly during interface deconfiguration.
 
- -- Andrew Shadura <andrewsh@debian.org>  Sun, 23 Mar 2014 18:50:08 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Sun, 23 Mar 2014 18:50:08 +0100
 
 ifupdown (0.7.48) unstable; urgency=low
 
@@ -636,20 +676,20 @@ ifupdown (0.7.48) unstable; urgency=low
   * Provide an alternative iproute dependency to make backporting easier.
   * Default to accept_ra=2 for inet6/auto (Closes: #739993, LP: #1260241)
 
- -- Andrew Shadura <andrewsh@debian.org>  Sun, 23 Mar 2014 15:03:09 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Sun, 23 Mar 2014 15:03:09 +0100
 
 ifupdown (0.7.47.2) unstable; urgency=low
 
   * Rebuild to avoid useless dependencies on sysv-rc and file-rc.
   * Don't pass deprecated arguments to update-rc.d.
 
- -- Andrew Shadura <andrewsh@debian.org>  Mon, 06 Jan 2014 21:23:03 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Mon, 06 Jan 2014 21:23:03 +0100
 
 ifupdown (0.7.47.1) unstable; urgency=low
 
   * Depend on adduser (Closes: #730598).
 
- -- Andrew Shadura <andrewsh@debian.org>  Wed, 27 Nov 2013 08:24:41 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Wed, 27 Nov 2013 08:24:41 +0100
 
 ifupdown (0.7.47) unstable; urgency=low
 
@@ -657,13 +697,13 @@ ifupdown (0.7.47) unstable; urgency=low
   * Remove Petter from the Uploaders.
   * Ensure netdev group exists.
 
- -- Andrew Shadura <andrewsh@debian.org>  Tue, 26 Nov 2013 08:27:29 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Tue, 26 Nov 2013 08:27:29 +0100
 
 ifupdown (0.7.46.1) unstable; urgency=low
 
   * Disable DHCP test on Hurd to make the package buildable again.
 
- -- Andrew Shadura <andrewsh@debian.org>  Wed, 13 Nov 2013 14:15:47 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Wed, 13 Nov 2013 14:15:47 +0100
 
 ifupdown (0.7.46) unstable; urgency=low
 
@@ -673,7 +713,7 @@ ifupdown (0.7.46) unstable; urgency=low
   * Add --state command to ifquery.
   * Update the init script to use --state.
 
- -- Andrew Shadura <andrewsh@debian.org>  Wed, 13 Nov 2013 13:46:58 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Wed, 13 Nov 2013 13:46:58 +0100
 
 ifupdown (0.7.45) unstable; urgency=low
 
@@ -690,7 +730,7 @@ ifupdown (0.7.45) unstable; urgency=low
   * Compat level 9.
   * Bump Standards Version to 3.9.4 (no changes).
 
- -- Andrew Shadura <andrewsh@debian.org>  Sat, 19 Oct 2013 20:25:51 +0200
+ -- Andrej Shadura <andrewsh@debian.org>  Sat, 19 Oct 2013 20:25:51 +0200
 
 ifupdown (0.7.44) unstable; urgency=low
 
@@ -709,20 +749,20 @@ ifupdown (0.7.44) unstable; urgency=low
   * Recommend ISC DHCP client, at the same time declare Breaks against
     dhcp3-client earlier than 4.0, as it has incompatible syntax.
 
- -- Andrew Shadura <andrewsh@debian.org>  Thu, 08 Aug 2013 21:55:27 +0200
+ -- Andrej Shadura <andrewsh@debian.org>  Thu, 08 Aug 2013 21:55:27 +0200
 
 ifupdown (0.7.43) unstable; urgency=low
 
   * Don't consider multiple auto declarations an error (Closes: #707052).
 
- -- Andrew Shadura <andrewsh@debian.org>  Tue, 07 May 2013 09:41:18 +0200
+ -- Andrej Shadura <andrewsh@debian.org>  Tue, 07 May 2013 09:41:18 +0200
 
 ifupdown (0.7.42) unstable; urgency=low
 
   * Fix syntax issue with postinst (Closes: #707041).
   * Fix cross-build.
 
- -- Andrew Shadura <andrewsh@debian.org>  Tue, 07 May 2013 08:09:32 +0200
+ -- Andrej Shadura <andrewsh@debian.org>  Tue, 07 May 2013 08:09:32 +0200
 
 ifupdown (0.7.41) unstable; urgency=low
 
@@ -736,11 +776,11 @@ ifupdown (0.7.41) unstable; urgency=low
   * Add implicit loopback device definition.
   * Enable sourcing /etc/network/interfaces.d/* in the default configuration.
 
- -- Andrew Shadura <andrewsh@debian.org>  Thu, 11 Apr 2013 21:44:23 +0200
+ -- Andrej Shadura <andrewsh@debian.org>  Thu, 11 Apr 2013 21:44:23 +0200
 
 ifupdown (0.7.40) experimental; urgency=low
 
-  [ Andrew Shadura ]
+  [ Andrej Shadura ]
   * Don't configure bridge interfaces as tagged VLAN interfaces
     (Closes: #696642).
   * Add "tryonce" option to DHCP-enabled methods (Closes: #694541).
@@ -769,25 +809,25 @@ ifupdown (0.7.40) experimental; urgency=low
   * postinst: Do not create /etc/network/interfaces if it was removed manually
     (Closes: #695906)
 
- -- Andrew Shadura <bugzilla@tut.by>  Mon, 04 Mar 2013 21:56:39 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Mon, 04 Mar 2013 21:56:39 +0100
 
 ifupdown (0.7.8) unstable; urgency=medium
 
   * Assign logical interface name for link pseudointerface on down
     (Closes: #705268).
 
- -- Andrew Shadura <andrewsh@debian.org>  Fri, 12 Apr 2013 11:44:21 +0200
+ -- Andrej Shadura <andrewsh@debian.org>  Fri, 12 Apr 2013 11:44:21 +0200
 
 ifupdown (0.7.7) unstable; urgency=low
 
   * Don't release DHCPv6 leases in inet6/auto for a while (Closes: #703922).
   * Don't call dhclient with -1 for now.
 
- -- Andrew Shadura <andrewsh@debian.org>  Mon, 25 Mar 2013 22:12:09 +0100
+ -- Andrej Shadura <andrewsh@debian.org>  Mon, 25 Mar 2013 22:12:09 +0100
 
 ifupdown (0.7.6) unstable; urgency=low
 
-  [ Andrew Shadura ]
+  [ Andrej Shadura ]
   * Don't configure bridge interfaces as tagged VLAN interfaces
     (Closes: #696642).
   * Implement inet6/auto for kFreeBSD, call DHCP release of ifdown
@@ -803,13 +843,13 @@ ifupdown (0.7.6) unstable; urgency=low
   * postinst: Do not create /etc/network/interfaces if it was removed manually
     (Closes: #695906)
 
- -- Andrew Shadura <bugzilla@tut.by>  Sun, 03 Mar 2013 12:08:16 +0100
+ -- Andrej Shadura <bugzilla@tut.by>  Sun, 03 Mar 2013 12:08:16 +0100
 
 ifupdown (0.7.5) unstable; urgency=low
 
   * Fix upstart hooks (Closes: #692110).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Fri, 02 Nov 2012 18:30:19 +0100
+ -- Andrej Shadura <bugzilla@tut.by>  Fri, 02 Nov 2012 18:30:19 +0100
 
 ifupdown (0.7.4) unstable; urgency=low
 
@@ -817,7 +857,7 @@ ifupdown (0.7.4) unstable; urgency=low
     isn't (Closes: #692008).
   * Bump lsb-base dependency to be able to use init_is_upstart.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Thu, 01 Nov 2012 12:01:17 +0100
+ -- Andrej Shadura <bugzilla@tut.by>  Thu, 01 Nov 2012 12:01:17 +0100
 
 ifupdown (0.7.3) unstable; urgency=low
 
@@ -827,7 +867,7 @@ ifupdown (0.7.3) unstable; urgency=low
     they should use limited broadcast address (Closes: #690561).
   * Add upstart support (patch provided by Steve Langasek, closes: #679549).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Tue, 16 Oct 2012 10:39:24 +0200
+ -- Andrej Shadura <bugzilla@tut.by>  Tue, 16 Oct 2012 10:39:24 +0200
 
 ifupdown (0.7.2) unstable; urgency=low
 
@@ -841,7 +881,7 @@ ifupdown (0.7.2) unstable; urgency=low
   * Recognize vlan+alias combination and filter aliases out (Closes: #679672).
   * Work-around ip(8) understanding of 0NNN as octal numbers (Closes: #684698).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Thu, 16 Aug 2012 23:22:32 +0200
+ -- Andrej Shadura <bugzilla@tut.by>  Thu, 16 Aug 2012 23:22:32 +0200
 
 ifupdown (0.7.1) unstable; urgency=low
 
@@ -865,7 +905,7 @@ ifupdown (0.7.1) unstable; urgency=low
   * When ifup is being run with --force -n, always report errors regardless of
     ifstate.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Thu, 21 Jun 2012 18:59:10 +0200
+ -- Andrej Shadura <bugzilla@tut.by>  Thu, 21 Jun 2012 18:59:10 +0200
 
 ifupdown (0.7) unstable; urgency=low
 
@@ -892,7 +932,7 @@ ifupdown (0.7) unstable; urgency=low
   * Update tests.
   * Update README.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Wed, 30 May 2012 17:45:46 +0200
+ -- Andrej Shadura <bugzilla@tut.by>  Wed, 30 May 2012 17:45:46 +0200
 
 ifupdown (0.7~rc3) unstable; urgency=low
 
@@ -915,7 +955,7 @@ ifupdown (0.7~rc3) unstable; urgency=low
   * Temporarily unapply patch for #547587.
   * Update tests.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 14 May 2012 11:42:08 +0200
+ -- Andrej Shadura <bugzilla@tut.by>  Mon, 14 May 2012 11:42:08 +0200
 
 ifupdown (0.7~rc2+experimental) experimental; urgency=low
 
@@ -924,7 +964,7 @@ ifupdown (0.7~rc2+experimental) experimental; urgency=low
   * Don't call ifup when there are no interfaces to bring up
     (Closes: #670145).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 23 Apr 2012 14:36:28 +0200
+ -- Andrej Shadura <bugzilla@tut.by>  Mon, 23 Apr 2012 14:36:28 +0200
 
 ifupdown (0.7~rc1+experimental) experimental; urgency=low
 
@@ -977,7 +1017,7 @@ ifupdown (0.7~rc1+experimental) experimental; urgency=low
   * Also closes: #535226:
     - In 0.7~alpha5, "auto" method has been added.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Tue, 17 Apr 2012 01:05:42 +0200
+ -- Andrej Shadura <bugzilla@tut.by>  Tue, 17 Apr 2012 01:05:42 +0200
 
 ifupdown (0.7~beta2) experimental; urgency=low
 
@@ -999,7 +1039,7 @@ ifupdown (0.7~beta2) experimental; urgency=low
   * Add address scope option for static IPv4 and IPv6 setups.
   * Use FreeBSD version of route, thanks to Robert Millan (Closes: #646291).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Sun, 13 Nov 2011 23:20:11 +0100
+ -- Andrej Shadura <bugzilla@tut.by>  Sun, 13 Nov 2011 23:20:11 +0100
 
 ifupdown (0.7~beta1) experimental; urgency=low
 
@@ -1017,7 +1057,7 @@ ifupdown (0.7~beta1) experimental; urgency=low
   * Add partial kFreeBSD support (Closes: #630512).
   * Drop 'ifupdown-clean' init script (not needed any more with /run).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Tue, 23 Aug 2011 11:49:19 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Tue, 23 Aug 2011 11:49:19 +0300
 
 ifupdown (0.7~alpha5.1) experimental; urgency=low
 
@@ -1032,26 +1072,26 @@ ifupdown (0.7~alpha5+really0.6.16) unstable; urgency=low
   * Use FreeBSD version of route, thanks to Robert Millan
     for the patch (Closes: #646291).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Sun, 23 Oct 2011 21:10:44 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Sun, 23 Oct 2011 21:10:44 +0300
 
 ifupdown (0.7~alpha5+really0.6.15) unstable; urgency=low
 
   * Replace /etc/network/run.dpkg-old correctly (Closes: #639612).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 29 Aug 2011 11:00:17 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Mon, 29 Aug 2011 11:00:17 +0300
 
 ifupdown (0.7~alpha5+really0.6.14) unstable; urgency=low
 
   * Create /etc/network/interfaces correctly (Closes: #638718).
   * Correct the spelling of the maintainer's last name.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Mon, 22 Aug 2011 23:02:50 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Mon, 22 Aug 2011 23:02:50 +0300
 
 ifupdown (0.7~alpha5+really0.6.13) unstable; urgency=low
 
   * Clean up SysV symlinks on upgrade (Closes: #637804).
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Sun, 14 Aug 2011 21:36:02 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Sun, 14 Aug 2011 21:36:02 +0300
 
 ifupdown (0.7~alpha5+really0.6.12) unstable; urgency=low
 
@@ -1060,7 +1100,7 @@ ifupdown (0.7~alpha5+really0.6.12) unstable; urgency=low
   * Don't install ifupdown.init on runlevels 0 and 6.
   * Add Vcs-Hg field.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Sat, 13 Aug 2011 20:05:15 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Sat, 13 Aug 2011 20:05:15 +0300
 
 ifupdown (0.7~alpha5+really0.6.11) unstable; urgency=low
 
@@ -1070,7 +1110,7 @@ ifupdown (0.7~alpha5+really0.6.11) unstable; urgency=low
     - Fix init script dependencies (Closes: #607713).
   * Report the correct version number on --version.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Sun, 07 Aug 2011 15:38:26 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Sun, 07 Aug 2011 15:38:26 +0300
 
 ifupdown (0.7~alpha5+really0.6.10) unstable; urgency=low
 
@@ -1096,7 +1136,7 @@ ifupdown (0.7~alpha5) experimental; urgency=low
   * Fix some compilation warnings.
   * Update test cases.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Thu, 09 Jun 2011 00:07:09 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Thu, 09 Jun 2011 00:07:09 +0300
 
 ifupdown (0.7~alpha4) experimental; urgency=low
 
@@ -1124,7 +1164,7 @@ ifupdown (0.7~alpha4) experimental; urgency=low
   * Drop dependency on net-tools; suggest it instead.
   * Bump Standards-Version to 3.9.2.
 
- -- Andrew O. Shadura <bugzilla@tut.by>  Wed, 08 Jun 2011 12:10:14 +0300
+ -- Andrej Shadura <bugzilla@tut.by>  Wed, 08 Jun 2011 12:10:14 +0300
 
 ifupdown (0.7~alpha3) experimental; urgency=low
 

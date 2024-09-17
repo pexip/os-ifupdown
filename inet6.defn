@@ -28,7 +28,7 @@ method auto
     ip addr flush dev %iface% mngtmpaddr \
         if (var_set("accept_ra", ifd) && !var_true("accept_ra", ifd))
     ip link set dev %iface% up
-    /lib/ifupdown/wait-for-ll6.sh if (var_true("dhcp", ifd) && execable("/lib/ifupdown/wait-for-ll6.sh"))
+    wait-for-ll6.sh if (var_true("dhcp", ifd) && execable("wait-for-ll6.sh"))
     dhclient -6 -v -P -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
         if (var_true("dhcp", ifd) && execable("dhclient") && var_true("request_prefix", ifd))
     dhclient -6 -1 -v -S -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
@@ -99,7 +99,7 @@ method static
     ip -6 addr add %address%[[/%netmask%]] [[scope %scope%]] dev %iface% [[preferred_lft %preferred-lifetime%]] nodad \
                 if (var_set("dad-attempts", ifd) && !var_true("dad-attempts", ifd))
     [[ ip -6 route replace default via %gateway% [[metric %metric%]] dev %iface% onlink ]]
-    /lib/ifupdown/settle-dad.sh if (!no_act_commands && execable("/lib/ifupdown/settle-dad.sh") && (var_true("dad-attempts", ifd)))
+    settle-dad.sh if (!no_act_commands && execable("settle-dad.sh") && (var_true("dad-attempts", ifd)))
 
   down
     [[ ip -6 route del default via %gateway% [[metric %metric%]] dev %iface% ]]
@@ -157,7 +157,7 @@ method dhcp
     ip addr flush dev %iface% mngtmpaddr \
         if (var_set("accept_ra", ifd) && !var_true("accept_ra", ifd))
     ip link set dev %iface% [[address %hwaddress%]] up
-    /lib/ifupdown/wait-for-ll6.sh if (execable("/lib/ifupdown/wait-for-ll6.sh"))
+    wait-for-ll6.sh if (execable("wait-for-ll6.sh"))
     dhclient -6 -v -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -P -N -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \
         if (execable("dhclient") && var_true("request_prefix", ifd))
     dhclient -6 -v -pf /run/dhclient6.%iface%.pid -lf /var/lib/dhcp/dhclient6.%iface%.leases -I -df /var/lib/dhcp/dhclient.%iface%.leases %iface% \

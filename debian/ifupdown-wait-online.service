@@ -2,11 +2,11 @@
 Description=Wait for network to be configured by ifupdown
 DefaultDependencies=no
 Before=network-online.target
-ConditionFileIsExecutable=/sbin/ifup
+ConditionFileIsExecutable=/usr/sbin/ifup
 
 [Service]
 Type=oneshot
-ExecStart=/lib/ifupdown/wait-online.sh
+ExecStart=/usr/lib/ifupdown/wait-online.sh
 RemainAfterExit=yes
 
 [Install]

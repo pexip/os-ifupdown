@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PATH="$PATH:/sbin:/usr/sbin"
+
 if [ ! -e /etc/pcmcia/shared ]; then exit 1; fi
 
 pcmcia_shared () {
@@ -15,7 +17,7 @@ usage () {
 }
 
 get_info $iface
-HWADDR=`/sbin/ifconfig $DEVICE | sed -n -e 's/.*addr \([^ ]*\) */\1/p'`
+HWADDR=`ifconfig $DEVICE | sed -n -e 's/.*addr \([^ ]*\) */\1/p'`
 
 which=""
 while read glob scheme; do
