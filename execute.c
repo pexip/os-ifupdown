@@ -104,7 +104,7 @@ static void set_environ(interface_defn *iface, char *mode, char *phase) {
 	*ppch++ = setlocalenv("%s=%s", "MODE", mode);
 	*ppch++ = setlocalenv("%s=%s", "PHASE", phase);
 	*ppch++ = setlocalenv("%s=%s", "VERBOSITY", verbose ? "1" : "0");
-	*ppch++ = setlocalenv("%s=%s", "PATH", "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
+	*ppch++ = setlocalenv("%s=%s", "PATH", PKGLIBDIR ":/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin");
 	if (allow_class || do_all)
 		*ppch++ = setlocalenv("%s=%s", "CLASS", allow_class ? allow_class : "auto");
 	*ppch = NULL;

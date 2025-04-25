@@ -1,2 +1,0 @@
-rm_conffile /etc/network/if-up.d/upstart 0.8.29~ ifupdown
-rm_conffile /etc/network/if-down.d/upstart 0.8.29~ ifupdown

@@ -2,8 +2,8 @@ Source: ifupdown
 Section: admin
 Priority: important
 Maintainer: Pexip AS <packaging@pexip.com>
-XSBC-Pexip-Original-Maintainer: Josué Ortega <josue@debian.org>
-XSBC-Pexip-Original-Uploaders: Santiago Ruano Rincón <santiago@debian.org>
+XSBC-Pexip-Original-Maintainer: Debian Networking Team <team+networking@tracker.debian.org>
+XSBC-Pexip-Original-Uploaders: Josué Ortega <josue@debian.org>, Santiago Ruano Rincón <santiago@debian.org>
 Standards-Version: 4.6.1
 Build-Depends: debhelper-compat (= 13)
 Vcs-Git: https://salsa.debian.org/debian/ifupdown.git
@@ -16,10 +16,8 @@ Architecture: any
 Depends: ${net:Depends}, ${shlibs:Depends}, ${misc:Depends},
  adduser,
  iproute2 [linux-any], freebsd-net-tools [kfreebsd-any], inetutils-tools [hurd-any]
-Recommends: isc-dhcp-client | dhcp-client
+Recommends: dhcpcd-base | dhcp-client
 Suggests: ppp, rdnssd, ${net:Suggests}
-Replaces: systemd (<< 228-3~)
-Breaks: systemd (<< 228-3~)
 Multi-Arch: foreign
 Description: high level tools to configure network interfaces
  This package provides the tools ifup and ifdown which may be used to

@@ -119,14 +119,15 @@
 # Note, this won't work unless you specifically change the file
 # /etc/pcmcia/network to look more like:
 #
+#     PATH="$PATH:/sbin:/usr/sbin"
 #     if [ -r ./shared ] ; then . ./shared ; else . /etc/pcmcia/shared ; fi
 #     get_info $DEVICE
 #     case "$ACTION" in
 #         'start')
-#             /sbin/ifup $DEVICE
+#             ifup $DEVICE
 #             ;;
 #         'stop')
-#             /sbin/ifdown $DEVICE
+#             ifdown $DEVICE
 #             ;;
 #     esac
 #     exit 0

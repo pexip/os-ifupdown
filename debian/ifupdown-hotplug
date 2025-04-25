@@ -1,6 +1,6 @@
 #!/bin/sh -e
 #
-# run /sbin/{ifup,ifdown} with the --allow=hotplug option.
+# run {ifup,ifdown} with the --allow=hotplug option.
 #
 
 PATH='/sbin:/bin:/usr/sbin:/usr/bin'

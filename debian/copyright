@@ -4,7 +4,7 @@ Source: https://salsa.debian.org/debian/ifupdown/
 
 Files: *
 Copyright: 1999-2009 Anthony Towns
-           2010-2015 Andrew Shadura
+           2010-2015 Andrej Shadura
            2015      Guus Sliepen
            2020-2022 Josué Ortega, Santiago Ruano Rincón
 License: GPL-2+

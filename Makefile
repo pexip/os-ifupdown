@@ -3,9 +3,11 @@ CFLAGS ?= -Wall -W -Wno-unused-parameter -g -O2
 ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 
 BASEDIR ?= $(DESTDIR)
+PKGLIBDIR ?= /lib/ifupdown
 
 CFLAGS += -std=c99 -D_DEFAULT_SOURCE
 CFLAGS += -D'IFUPDOWN_VERSION="$(VERSION)"'
+CFLAGS += -D'PKGLIBDIR="$(PKGLIBDIR)"'
 
 DEFNFILES := inet.defn ipx.defn inet6.defn can.defn
 
@@ -22,13 +24,13 @@ all : ifup ifdown ifquery ifup.8 ifdown.8 ifquery.8 interfaces.5
 .SECONDARY: link.c ipx.c can.c meta.c inet6.c inet.c
 
 install :
-	install -m 0755 -d     ${BASEDIR}/sbin
-	install -m 0755 ifup   ${BASEDIR}/sbin
-	ln -s /sbin/ifup ${BASEDIR}/sbin/ifdown
-	ln -s /sbin/ifup ${BASEDIR}/sbin/ifquery
-	install -D -m 0755 settle-dad.sh $(BASEDIR)/lib/ifupdown/settle-dad.sh
-	install -D -m 0755 wait-for-ll6.sh $(BASEDIR)/lib/ifupdown/wait-for-ll6.sh
-	install -D -m 0755 wait-online.sh $(BASEDIR)/lib/ifupdown/wait-online.sh
+	install -m 0755 -d     ${BASEDIR}/usr/sbin
+	install -m 0755 ifup   ${BASEDIR}/usr/sbin
+	ln -s /usr/sbin/ifup ${BASEDIR}/usr/sbin/ifdown
+	ln -s /usr/sbin/ifup ${BASEDIR}/usr/sbin/ifquery
+	install -D -m 0755 settle-dad.sh $(BASEDIR)$(PKGLIBDIR)/settle-dad.sh
+	install -D -m 0755 wait-for-ll6.sh $(BASEDIR)$(PKGLIBDIR)/wait-for-ll6.sh
+	install -D -m 0755 wait-online.sh $(BASEDIR)$(PKGLIBDIR)/wait-online.sh
 
 clean :
 	rm -f *.o $(patsubst %.defn,%.c,$(DEFNFILES)) *~
