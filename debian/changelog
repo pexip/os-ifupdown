@@ -1,3 +1,9 @@
+ifupdown (0.8.44+pexip25u1) pexip-trixie; urgency=medium
+
+  * Initial trixie build
+
+ -- Mark Hymers <mark.hymers@pexip.com>  Tue, 29 Apr 2025 22:33:59 +0100
+
 ifupdown (0.8.44) unstable; urgency=low
 
   [ Debian Janitor ]
