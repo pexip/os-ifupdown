@@ -1,3 +1,18 @@
+ifupdown (0.8.44+deb13u1) trixie; urgency=medium
+
+  * Fix ifup regression where it would return before IPv6 DAD had
+    completed allowing boot to proceed and causing subsequent service
+    start failures with "Cannot assign requested" or "Address not available".
+    (Closes: #1122511)
+  * Fix ifup regression calling dhclient before IPv6 link-locals are
+    available on interface.
+    (Closes: #1088852)
+  * Fix execable() returning false for scripts in lib(exec) causing the
+    above regressions. This underlying bug was introduced in 0.8.42.
+  * Add myself to Uploaders.
+
+ -- Daniel Gröber <dxld@darkboxed.org>  Thu, 08 Jan 2026 14:17:04 +0100
+
 ifupdown (0.8.44) unstable; urgency=low
 
   [ Debian Janitor ]

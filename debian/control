@@ -2,7 +2,10 @@ Source: ifupdown
 Section: admin
 Priority: important
 Maintainer: Debian Networking Team <team+networking@tracker.debian.org>
-Uploaders: Josué Ortega <josue@debian.org>, Santiago Ruano Rincón <santiago@debian.org>
+Uploaders:
+ Daniel Gröber <dxld@darkboxed.org>,
+ Josué Ortega <josue@debian.org>,
+ Santiago Ruano Rincón <santiago@debian.org>,
 Standards-Version: 4.6.1
 Build-Depends: debhelper-compat (= 13)
 Vcs-Git: https://salsa.debian.org/debian/ifupdown.git

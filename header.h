@@ -100,6 +100,8 @@ struct mapping_defn {
 #define RUN_DIR "/run/network/"
 #endif
 
+#define EXECUTE_LOCAL_PATHLIST (PKGLIBDIR ":/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin")
+
 #ifndef LO_IFACE
 #define LO_IFACE "lo"
 #endif
