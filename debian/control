@@ -3,7 +3,10 @@ Section: admin
 Priority: important
 Maintainer: Pexip AS <packaging@pexip.com>
 XSBC-Pexip-Original-Maintainer: Debian Networking Team <team+networking@tracker.debian.org>
-XSBC-Pexip-Original-Uploaders: Josué Ortega <josue@debian.org>, Santiago Ruano Rincón <santiago@debian.org>
+XSBC-Pexip-Original-Uploaders:
+ Daniel Gröber <dxld@darkboxed.org>,
+ Josué Ortega <josue@debian.org>,
+ Santiago Ruano Rincón <santiago@debian.org>,
 Standards-Version: 4.6.1
 Build-Depends: debhelper-compat (= 13)
 Vcs-Git: https://salsa.debian.org/debian/ifupdown.git

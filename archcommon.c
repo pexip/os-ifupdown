@@ -35,16 +35,12 @@ static bool file_is_exec(const char *program) {
 
 bool execable(const char *program) {
 	char *filename = NULL;
-	const char *path_list;
+	const char *path_list = EXECUTE_LOCAL_PATHLIST;
 	const char *path, *path_end;
 	size_t path_len;
 
 	if (program[0] == '/')
 		return file_is_exec(program);
-
-	path_list = getenv("PATH");
-	if (!path_list)
-		return false;
 
 	/*
 	 * We allocate based on the length of PATH and the program name we

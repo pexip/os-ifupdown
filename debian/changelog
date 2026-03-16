@@ -1,3 +1,24 @@
+ifupdown (0.8.44+pexip25u3+deb13u1) pexip-trixie; urgency=medium
+
+  * New upstream release
+
+ -- Steve McIntyre <steve.mcintyre@pexip.com>  Mon, 16 Mar 2026 17:02:15 +0000
+
+ifupdown (0.8.44+deb13u1) trixie; urgency=medium
+
+  * Fix ifup regression where it would return before IPv6 DAD had
+    completed allowing boot to proceed and causing subsequent service
+    start failures with "Cannot assign requested" or "Address not available".
+    (Closes: #1122511)
+  * Fix ifup regression calling dhclient before IPv6 link-locals are
+    available on interface.
+    (Closes: #1088852)
+  * Fix execable() returning false for scripts in lib(exec) causing the
+    above regressions. This underlying bug was introduced in 0.8.42.
+  * Add myself to Uploaders.
+
+ -- Daniel Gröber <dxld@darkboxed.org>  Thu, 08 Jan 2026 14:17:04 +0100
+
 ifupdown (0.8.44+pexip25u2) pexip-trixie; urgency=medium
 
   * Trixie build for product distribution
